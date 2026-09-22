@@ -1,0 +1,190 @@
+/* ============================================================
+   LMX STUDIO — ANIMATIONS
+   Motion serves hierarchy, narration & identity — never decor.
+   CSS layer holds keyframes, reveal primitives & utility motion.
+   GSAP/ScrollTrigger will drive scroll-bound sequences later.
+   Only transform & opacity are animated.
+   ============================================================ */
+
+/* ---------- KEYFRAMES ---------- */
+
+/* The gold edge sweeping across metal (logo signature) */
+@keyframes edge-sweep {
+  0% {
+    transform: translateX(-120%) skewX(-12deg);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(120%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+/* Line reveal — a mask lifting from bottom */
+@keyframes line-rise {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Fade + lift (used only where a rise reads as "emerging") */
+@keyframes emerge {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hairline drawing in */
+@keyframes rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Slow breathing glow for the signature gold light */
+@keyframes gold-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Subtle ambient drift for background light wash */
+@keyframes ambient-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(2%, 1.5%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Scroll indicator: a gold segment travelling down a hairline */
+@keyframes scroll-travel {
+  0% {
+    transform: translateY(-120%);
+  }
+  60% {
+    transform: translateY(240%);
+  }
+  100% {
+    transform: translateY(240%);
+  }
+}
+
+/* Scroll hint */
+@keyframes scroll-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+/* ---------- REVEAL PRIMITIVES (JS toggles .is-inview) ---------- */
+
+/* Masked line reveal: wrap text line in .reveal-line, inner in span */
+.reveal-line {
+  display: block;
+  overflow: hidden;
+}
+.reveal-line > * {
+  display: block;
+  transform: translateY(110%);
+  transition: transform var(--dur-reveal) var(--ease-emphasis);
+  will-change: transform;
+}
+.is-inview .reveal-line > *,
+.reveal-line.is-inview > * {
+  transform: translateY(0);
+}
+
+/* Emerge primitive */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+  will-change: transform, opacity;
+}
+.reveal-up.is-inview,
+.is-inview .reveal-up {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hairline draw */
+.reveal-rule {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-slow) var(--ease-in-out);
+}
+.reveal-rule.is-inview,
+.is-inview .reveal-rule {
+  transform: scaleX(1);
+}
+
+/* Staggering: set --i on children, delay derives from it */
+[data-stagger] > * {
+  transition-delay: calc(var(--i, 0) * 80ms);
+}
+
+/* ---------- UTILITY MOTION ---------- */
+
+.anim-gold-pulse {
+  animation: gold-pulse 4s var(--ease-in-out) infinite;
+}
+.anim-ambient {
+  animation: ambient-drift 18s ease-in-out infinite;
+}
+.anim-scroll-nudge {
+  animation: scroll-nudge 1.8s var(--ease-in-out) infinite;
+}
+
+/* ---------- REDUCED MOTION ----------
+   Everything resolves to its final, legible state.
+   No transforms, no infinite loops, instant transitions.       */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-line > *,
+  .reveal-up {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .reveal-rule {
+    transform: scaleX(1) !important;
+  }
+}

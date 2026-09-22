@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>LMX Studio | Agence web à Abidjan</title>
+  <meta
+    name="description"
+    content="LMX Studio est une agence web à Abidjan fondée par Lemuel Abokan : UX/UI design, front-end, back-end. 4 projets livrés depuis 2026." />
+  <meta name="theme-color" content="#050505" />
+  <link rel="canonical" href="https://lmxstudio.africa/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="LMX Studio | Agence web" />
+  <meta
+    property="og:description"
+    content="UX/UI design, front-end, back-end. Une agence à Abidjan, 4 projets livrés depuis 2026." />
+  <meta property="og:image" content="assets/images/lmx-logo.png" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/images/favicon.png" />
+
+  <!-- Fonts (Clash Display self-hosted later; Space Grotesk stands in) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Preload the mark used in the preloader -->
+  <link rel="preload" as="image" href="assets/images/lmx-logo.webp" />
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="css/reset.css?v=7" />
+  <link rel="stylesheet" href="css/variables.css?v=7" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
+  <link rel="stylesheet" href="css/animations.css?v=7" />
+  <link rel="stylesheet" href="css/responsive.css?v=7" />
+
+  <!-- Display face: Bricolage Grotesque -->
+  <style>
+    :root { --font-display: "Bricolage Grotesque", system-ui, sans-serif; }
+  </style>
+
+  <!-- No-JS: never trap the page behind the loader -->
+  <noscript>
+    <style>
+      #preloader { display: none !important; }
+      [data-reveal] { opacity: 1 !important; transform: none !important; }
+      .reveal-line > * { transform: none !important; }
+      .step .step__title,
+      .step .step__desc,
+      .step .step__index { opacity: 1 !important; transform: none !important; }
+      .process__fill { transform: scaleY(1) !important; }
+    </style>
+  </noscript>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+
+  <!-- ============ PRELOADER ============ -->
+  <div
+    class="preloader"
+    id="preloader"
+    role="status"
+    aria-live="polite"
+    aria-label="Chargement du site">
+    <div class="preloader__inner">
+      <div class="preloader__mark">
+        <img
+          class="preloader__logo"
+          src="assets/images/lmx-logo.webp"
+          alt="LMX Studio"
+          width="220"
+          height="109"
+          decoding="async" />
+        <span class="preloader__sweep" aria-hidden="true"></span>
+      </div>
+      <div class="preloader__progress" aria-hidden="true">
+        <span class="preloader__bar"></span>
+      </div>
+      <span class="preloader__count">0%</span>
+    </div>
+  </div>
+
+  <!-- ============ HEADER / NAV ============ -->
+  <header class="site-header" id="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="#hero" aria-label="LMX Studio, accueil">
+        <img
+          class="brand__logo logo-metal"
+          src="assets/images/lmx-logo.webp"
+          alt="LMX Studio"
+          width="96"
+          height="47" />
+      </a>
+      <nav class="nav" aria-label="Navigation principale">
+        <a class="nav__link" href="#work"><span>Projets</span></a>
+        <a class="nav__link" href="#about"><span>L'agence</span></a>
+        <a class="nav__link" href="#services"><span>Services</span></a>
+        <a class="nav__link" href="#contact"><span>Contact</span></a>
+      </nav>
+
+      <button
+        class="nav-toggle"
+        id="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="menu"
+        aria-label="Ouvrir le menu">
+        <span class="nav-toggle__label" data-open="Menu" data-close="Fermer">Menu</span>
+        <span class="nav-toggle__glyph" aria-hidden="true">
+          <span></span><span></span>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ MOBILE FULLSCREEN MENU ============ -->
+  <div class="menu" id="menu" aria-hidden="true">
+    <div class="menu__bg" aria-hidden="true"></div>
+    <nav class="menu__nav" aria-label="Menu principal">
+      <ul class="menu__list">
+        <li class="menu__item">
+          <span class="menu__rule" aria-hidden="true"></span>
+          <a class="menu__link" href="#work">
+            <span class="menu__index">01</span>
+            <span class="menu__label"><span>Projets</span></span>
+          </a>
+        </li>
+        <li class="menu__item">
+          <span class="menu__rule" aria-hidden="true"></span>
+          <a class="menu__link" href="#about">
+            <span class="menu__index">02</span>
+            <span class="menu__label"><span>L'agence</span></span>
+          </a>
+        </li>
+        <li class="menu__item">
+          <span class="menu__rule" aria-hidden="true"></span>
+          <a class="menu__link" href="#services">
+            <span class="menu__index">03</span>
+            <span class="menu__label"><span>Services</span></span>
+          </a>
+        </li>
+        <li class="menu__item">
+          <span class="menu__rule" aria-hidden="true"></span>
+          <a class="menu__link" href="#contact">
+            <span class="menu__index">04</span>
+            <span class="menu__label"><span>Contact</span></span>
+          </a>
+        </li>
+      </ul>
+      <span class="menu__rule menu__rule--last" aria-hidden="true"></span>
+
+      <div class="menu__footer">
+        <a class="menu__mail link" href="mailto:contactlmxstudio@gmail.com"
+          >contactlmxstudio@gmail.com</a
+        >
+        <p class="menu__meta">Agence web · Abidjan · 2026</p>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ============ HERO EXPERIENCE ============ -->
+  <main id="main">
+    <section class="hero" id="hero" aria-label="LMX Studio, agence web">
+      <!-- depth layer: oversized ghost mark -->
+      <div class="hero__mark" aria-hidden="true">
+        <img class="hero__mark-img logo-metal" src="assets/images/lmx-logo.webp" alt="" />
+      </div>
+
+      <div class="container">
+        <div class="hero__content">
+          <p class="hero__eyebrow label">
+            <span>LMX</span>
+            <span class="hero__sep" aria-hidden="true"></span>
+            <span>Agence web</span>
+          </p>
+
+          <h1 class="hero__headline">
+            <span class="visually-hidden">Des sites qui font vendre. UX/UI design, front-end, back-end</span>
+            <span class="hero__line" aria-hidden="true"><span>Des sites qui</span></span>
+            <span class="hero__line hero__line--offset" aria-hidden="true"><span>font vendre.</span></span>
+          </h1>
+
+          <p class="hero__subtitle">
+            UX/UI design <span class="cross" aria-hidden="true">×</span> Front&#8209;end <span class="cross" aria-hidden="true">×</span> Back&#8209;end
+          </p>
+        </div>
+      </div>
+
+      <a class="hero__scroll" href="#work" aria-label="Défiler vers le contenu">
+        <span class="hero__scroll-label label">Défiler</span>
+        <span class="hero__scroll-track" aria-hidden="true"><span></span></span>
+      </a>
+    </section>
+
+    <!-- ============ SELECTED WORK ============ -->
+    <section class="work" id="work" aria-label="Projets"></section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="about" id="about" aria-label="L'agence">
+      <div class="container">
+        <p class="about__eyebrow label">L'agence · LMX Studio</p>
+        <h2 class="about__statement">
+          <span class="about__line"><span>Nous créons</span></span>
+          <span class="about__line"><span>des expériences</span></span>
+          <span class="about__line about__line--metal"><span>numériques.</span></span>
+        </h2>
+      </div>
+
+      <div class="container about__intro">
+        <figure class="about__portrait">
+          <img
+            src="assets/images/about/portrait-ambient.webp"
+            alt="Portrait de Lemuel Abokan, fondateur de LMX Studio"
+            loading="lazy"
+            decoding="async" />
+        </figure>
+        <div class="about__text">
+          <p class="lead about__lead">
+            UX/UI design, front-end, back-end. LMX Studio est une agence
+            web à Abidjan. Déjà 4 projets livrés depuis 2026.
+          </p>
+          <p class="about__note text-muted">
+            Fondée à Abidjan par Lemuel Abokan, LMX Studio réunit design et
+            développement sous un même toit. Nous imaginons votre interface,
+            nous la codons et nous la mettons en ligne, sans intermédiaire ni
+            template. Résultat : un site qui vous ressemble, rapide, et prêt à
+            faire grandir votre activité.
+          </p>
+
+          <dl class="about__facts">
+            <div class="about__fact">
+              <dt class="label">Fondateur</dt>
+              <dd>Lemuel Abokan</dd>
+            </div>
+            <div class="about__fact">
+              <dt class="label">Basé à</dt>
+              <dd>Abidjan, Cocody</dd>
+            </div>
+            <div class="about__fact">
+              <dt class="label">Expertises</dt>
+              <dd>UX/UI · Front · Back</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="container about__stats">
+        <div class="about__stat">
+          <span class="about__stat-num" data-count="4">4</span>
+          <span class="about__stat-label label">projets livrés depuis 2026</span>
+        </div>
+        <div class="about__stat">
+          <span class="about__stat-num" data-count="3">3</span>
+          <span class="about__stat-label label">expertises · UX/UI, front, back</span>
+        </div>
+        <div class="about__stat">
+          <span class="about__stat-num" data-count="1">1</span>
+          <span class="about__stat-label label">agence · Abidjan</span>
+        </div>
+      </div>
+
+      <div class="container about__values">
+        <p class="label about__values-eyebrow">Notre approche</p>
+        <ul class="about__values-grid" role="list">
+          <li class="value">
+            <span class="value__num numeral">01</span>
+            <h3 class="value__title">Précision</h3>
+            <p class="value__desc">
+              Chaque détail compte. Nous travaillons au pixel près, pour des
+              interfaces qui respirent l'intention.
+            </p>
+          </li>
+          <li class="value">
+            <span class="value__num numeral">02</span>
+            <h3 class="value__title">Sur-mesure</h3>
+            <p class="value__desc">
+              Pas de template. Chaque projet est conçu à partir de zéro,
+              autour de votre marque et de vos objectifs.
+            </p>
+          </li>
+          <li class="value">
+            <span class="value__num numeral">03</span>
+            <h3 class="value__title">Performance</h3>
+            <p class="value__desc">
+              Des sites rapides, accessibles et optimisés, car la beauté ne
+              doit jamais ralentir l'expérience.
+            </p>
+          </li>
+          <li class="value">
+            <span class="value__num numeral">04</span>
+            <h3 class="value__title">Partenariat</h3>
+            <p class="value__desc">
+              Nous ne livrons pas qu'un site : nous construisons une relation
+              durable, du concept aux évolutions.
+            </p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ============ SERVICES ============ -->
+    <section class="services" id="services" aria-label="Services">
+      <div class="container services__head">
+        <p class="label services__eyebrow">Services</p>
+        <h2 class="services__title"><span>Ce que</span><span>nous concevons</span></h2>
+      </div>
+
+      <ul class="services__list container">
+        <li class="service" data-service="Design Web" data-img="assets/images/services/web-design.webp">
+          <span class="service__num numeral">01</span>
+          <h3 class="service__name">Design Web</h3>
+          <p class="service__desc">
+            Direction artistique et interfaces sur mesure, pensées pour marquer.
+          </p>
+        </li>
+        <li class="service" data-service="Développement Web" data-img="assets/images/services/dev-web.webp">
+          <span class="service__num numeral">02</span>
+          <h3 class="service__name">Développement Web</h3>
+          <p class="service__desc">
+            Sites et applications performants, animés et maintenables.
+          </p>
+        </li>
+        <li class="service" data-service="UI / UX" data-img="assets/images/services/ux-ui.webp">
+          <span class="service__num numeral">03</span>
+          <h3 class="service__name">UI / UX</h3>
+          <p class="service__desc">
+            Des parcours clairs et des interfaces qui donnent envie d'agir.
+          </p>
+        </li>
+        <li class="service" data-service="Développement Créatif" data-img="assets/images/services/dev-creatif.webp">
+          <span class="service__num numeral">04</span>
+          <h3 class="service__name">Développement Créatif</h3>
+          <p class="service__desc">
+            Interactions, motion et WebGL au service de l'émotion.
+          </p>
+        </li>
+        <li class="service" data-service="Expériences Numériques" data-img="assets/images/services/experiences.webp">
+          <span class="service__num numeral">05</span>
+          <h3 class="service__name">Expériences Numériques</h3>
+          <p class="service__desc">
+            Des expériences immersives, du concept au moindre détail.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============ TECH STACK ============ -->
+    <section class="stack" id="stack" aria-label="Tech Stack">
+      <div class="container stack__head">
+        <p class="label stack__eyebrow">Savoir-faire de l'agence</p>
+        <h2 class="stack__title"><span>L'atelier</span><span>technique</span></h2>
+      </div>
+
+      <ul class="container skills" role="list">
+        <li class="skill">
+          <span class="skill__num numeral">01</span>
+          <span class="skill__name">UX / UI Design</span>
+          <span class="skill__pct" data-count="95">95</span>
+        </li>
+        <li class="skill">
+          <span class="skill__num numeral">02</span>
+          <span class="skill__name">Front-End Dev</span>
+          <span class="skill__pct" data-count="92">92</span>
+        </li>
+        <li class="skill">
+          <span class="skill__num numeral">03</span>
+          <span class="skill__name">Back-End / API</span>
+          <span class="skill__pct" data-count="85">85</span>
+        </li>
+        <li class="skill">
+          <span class="skill__num numeral">04</span>
+          <span class="skill__name">Motion &amp; 3D</span>
+          <span class="skill__pct" data-count="88">88</span>
+        </li>
+        <li class="skill">
+          <span class="skill__num numeral">05</span>
+          <span class="skill__name">Stratégie Digitale</span>
+          <span class="skill__pct" data-count="80">80</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============ PROCESS ============ -->
+    <section class="process" id="process" aria-label="Process">
+      <div class="container process__head">
+        <p class="label process__eyebrow">Processus</p>
+        <h2 class="process__title">
+          <span class="reveal-line"><span>De l'idée</span></span>
+          <span class="reveal-line process__title--metal"><span>à l'expérience</span></span>
+        </h2>
+      </div>
+
+      <div class="container process__body">
+        <aside class="process__aside" aria-hidden="true">
+          <span class="process__count numeral">01</span>
+          <span class="process__count-label">Découvrir</span>
+          <span class="process__count-total numeral">/ 06</span>
+        </aside>
+
+        <ol class="process__steps">
+          <li class="step" data-step="0">
+            <span class="step__dot" aria-hidden="true"></span>
+            <span class="step__index numeral">01</span>
+            <h3 class="step__title">Découvrir</h3>
+            <p class="step__desc">Comprendre la marque, les objectifs et les utilisateurs.</p>
+          </li>
+          <li class="step" data-step="1">
+            <span class="step__dot" aria-hidden="true"></span>
+            <span class="step__index numeral">02</span>
+            <h3 class="step__title">Cadrer</h3>
+            <p class="step__desc">Définir le positionnement, l'architecture et le parcours.</p>
+          </li>
+          <li class="step" data-step="2">
+            <span class="step__dot" aria-hidden="true"></span>
+            <span class="step__index numeral">03</span>
+            <h3 class="step__title">Concevoir</h3>
+            <p class="step__desc">Direction artistique, interfaces et système visuel cohérent.</p>
+          </li>
+          <li class="step" data-step="3">
+            <span class="step__dot" aria-hidden="true"></span>
+            <span class="step__index numeral">04</span>
+            <h3 class="step__title">Développer</h3>
+            <p class="step__desc">Intégration performante, animée et maintenable.</p>
+          </li>
+          <li class="step" data-step="4">
+            <span class="step__dot" aria-hidden="true"></span>
+            <span class="step__index numeral">05</span>
+            <h3 class="step__title">Affiner</h3>
+            <p class="step__desc">Tests, détails, accessibilité et optimisation.</p>
+          </li>
+          <li class="step" data-step="5">
+            <span class="step__dot" aria-hidden="true"></span>
+            <span class="step__index numeral">06</span>
+            <h3 class="step__title">Lancer</h3>
+            <p class="step__desc">Mise en ligne, mesure et itérations continues.</p>
+          </li>
+          <span class="process__line" aria-hidden="true"><i class="process__fill"></i></span>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="contact" id="contact" aria-label="Contact">
+      <div class="contact__rings" aria-hidden="true">
+        <span class="contact__glow"></span>
+        <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+          <circle cx="500" cy="500" r="80" />
+          <circle cx="500" cy="500" r="170" />
+          <circle cx="500" cy="500" r="260" />
+          <circle cx="500" cy="500" r="350" class="contact__ring--gold" />
+          <circle cx="500" cy="500" r="440" />
+          <circle cx="500" cy="500" r="490" />
+        </svg>
+      </div>
+
+      <div class="container contact__inner">
+        <h2 class="contact__headline">
+          Faisons décoller <em class="contact__accent">votre projet</em>
+        </h2>
+        <p class="contact__subtitle">
+          Vos idées ont déjà une forme. Il manque l'équipe qui les construit.
+        </p>
+        <a class="contact__email" href="mailto:contactlmxstudio@gmail.com">
+          contactlmxstudio@<wbr />gmail.com
+        </a>
+        <div class="contact__cta-row">
+          <a class="wa-btn" href="https://wa.me/2250140793012" target="_blank"
+            rel="noopener" aria-label="Discuter sur WhatsApp">
+            <svg class="wa-btn__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.55 4.06 1.6 5.82L2 22l4.42-1.16a9.9 9.9 0 0 0 4.62 1.18h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2Zm5.8 14.06c-.25.69-1.45 1.32-1.99 1.36-.53.05-1.03.24-3.47-.72-2.93-1.15-4.79-4.17-4.93-4.36-.14-.19-1.18-1.57-1.18-2.99 0-1.42.75-2.12 1.01-2.41.26-.29.57-.36.76-.36h.55c.18 0 .42-.03.64.49.25.6.85 2.07.92 2.22.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.08.18-.28.37-.23.62-.14.25.09 1.6.75 1.87.89.28.14.46.21.53.32.07.11.07.66-.18 1.35Z"/>
+            </svg>
+            <span>Discuter sur WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer" role="contentinfo">
+      <span class="footer__seam light-line" aria-hidden="true"></span>
+      <div class="container">
+        <div class="footer__grid">
+          <div class="footer__brand">
+            <a class="footer__logo-link" href="#hero" aria-label="LMX Studio, retour en haut">
+              <img
+                class="footer__logo logo-metal"
+                src="assets/images/lmx-logo.webp"
+                alt="LMX Studio"
+                width="96"
+                height="47"
+                loading="lazy"
+                decoding="async" />
+            </a>
+            <p class="footer__tagline text-muted">
+              UX/UI design, front-end, back-end. Une agence à Abidjan,
+              4 projets livrés depuis 2026.
+            </p>
+          </div>
+
+          <nav class="footer__col" aria-label="Pied de page">
+            <span class="footer__col-title label">Navigation</span>
+            <a class="link link--muted" href="#hero">Accueil</a>
+            <a class="link link--muted" href="#work">Projets</a>
+            <a class="link link--muted" href="#about">L'agence</a>
+            <a class="link link--muted" href="#services">Services</a>
+            <a class="link link--muted" href="#contact">Contact</a>
+          </nav>
+
+          <div class="footer__col">
+            <span class="footer__col-title label">Contact</span>
+            <a class="link link--muted" href="mailto:contactlmxstudio@gmail.com">contactlmxstudio@gmail.com</a>
+            <a class="link link--muted" href="tel:+2250140793012">+225 01 40 79 30 12</a>
+            <a class="footer__wa link link--muted" href="https://wa.me/2250140793012" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                <path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.55 4.06 1.6 5.82L2 22l4.42-1.16a9.9 9.9 0 0 0 4.62 1.18h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2Zm5.8 14.06c-.25.69-1.45 1.32-1.99 1.36-.53.05-1.03.24-3.47-.72-2.93-1.15-4.79-4.17-4.93-4.36-.14-.19-1.18-1.57-1.18-2.99 0-1.42.75-2.12 1.01-2.41.26-.29.57-.36.76-.36h.55c.18 0 .42-.03.64.49.25.6.85 2.07.92 2.22.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.08.18-.28.37-.23.62-.14.25.09 1.6.75 1.87.89.28.14.46.21.53.32.07.11.07.66-.18 1.35Z"/>
+              </svg>
+              WhatsApp
+            </a>
+          </div>
+
+          <div class="footer__col">
+            <span class="footer__col-title label">Agence</span>
+            <p class="footer__addr">Abidjan, Cocody<br />Côte d'Ivoire</p>
+            <p class="footer__addr">Lun à ven<br />8h30 à 18h GMT</p>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <p class="footer__copy">© <span id="year">2026</span> LMX Studio · Fondée par Lemuel Abokan</p>
+          <p class="footer__made">Fait à Abidjan, Côte d'Ivoire</p>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ============ SCRIPTS ============ -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
+    defer></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"
+    defer></script>
+  <script src="js/utils.js?v=7" defer></script>
+  <script src="js/cursor.js?v=7" defer></script>
+  <script src="js/interactions.js?v=7" defer></script>
+  <script src="js/main.js?v=7" defer></script>
+  <script src="js/animations.js?v=7" defer></script>
+  <script src="js/navigation.js?v=7" defer></script>
+  <script src="js/projects.js?v=7" defer></script>
+  <script src="js/services.js?v=7" defer></script>
+  <script src="js/stack.js?v=7" defer></script>
+  <script src="js/process.js?v=7" defer></script>
+  <script src="js/contact.js?v=7" defer></script>
+</body>
+</html>

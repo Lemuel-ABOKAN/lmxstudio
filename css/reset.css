@@ -1,0 +1,105 @@
+/* ============================================================
+   LMX STUDIO — RESET
+   Modern, opinionated reset. Neutral ground for the design system.
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+/* Motion-sensitive users: never auto-scroll animate */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Media defaults to block, never overflow */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Forms inherit typography */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Balanced, non-overflowing text */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* Lists used for layout carry no marker */
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+}
+
+/* Links reset — styled explicitly in style.css */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Remove default table spacing */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Root stacking + isolation for layered depth system */
+#root,
+#app,
+main {
+  isolation: isolate;
+}
+
+/* Hidden but accessible */
+[hidden] {
+  display: none !important;
+}

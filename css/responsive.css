@@ -1,0 +1,367 @@
+/* ============================================================
+   LMX STUDIO — RESPONSIVE
+   Breakpoint contract for the design system. Mobile is NOT a
+   shrunk desktop: grid collapses, type re-scales, heavy motion
+   & the custom cursor are handled elsewhere (JS + media queries).
+
+   Breakpoints
+     xs   < 480   phone (portrait)
+     sm   >= 480  phone (landscape) / small
+     md   >= 768  tablet
+     lg   >= 1024 laptop
+     xl   >= 1280 desktop
+     2xl  >= 1600 large desktop
+   ============================================================ */
+
+/* ---------- TABLET & BELOW ( < 1024 ) ---------- */
+@media (max-width: 1023.98px) {
+  :root {
+    --grid-columns: 8;
+  }
+
+  /* Column spans re-map to the 8-col grid */
+  .col-5,
+  .col-6 { grid-column: span 4; }
+  .col-7,
+  .col-8 { grid-column: span 8; }
+  .col-9,
+  .col-10,
+  .col-11,
+  .col-12 { grid-column: span 8; }
+
+  /* Asymmetric starts relax on tablet */
+  .start-2,
+  .start-3,
+  .start-4,
+  .start-6,
+  .start-7 { grid-column-start: auto; }
+}
+
+/* ---------- MOBILE ( < 768 ) ---------- */
+@media (max-width: 767.98px) {
+  :root {
+    --grid-columns: 4;
+
+    /* Tame the monumental scale so the headline never breaks mid-word */
+    --fs-display: clamp(2.5rem, 1.2rem + 8vw, 4rem);
+    --fs-h1: clamp(2.4rem, 1.5rem + 8vw, 3.4rem);
+    --fs-h2: clamp(1.9rem, 1.4rem + 4vw, 2.6rem);
+
+    /* Tighter side gutters, shorter section rhythm */
+    --gutter-x: 1.25rem;
+    --section-py: clamp(3.5rem, 2.5rem + 8vw, 6rem);
+
+    /* Slightly less negative-space letter tracking on labels */
+    --ls-label: 0.22em;
+  }
+
+  /* Everything stacks to full width by default */
+  [class*="col-"] {
+    grid-column: 1 / -1;
+  }
+
+  /* Buttons breathe / can go full width where needed */
+  .btn {
+    min-height: var(--tap-target);
+  }
+  .btn--block-mobile {
+    width: 100%;
+  }
+
+  /* Reading measure adapts */
+  p,
+  .lead {
+    max-width: none;
+  }
+}
+
+/* ---------- HERO / NAV: tablet ---------- */
+@media (max-width: 1023.98px) {
+  .hero__meta {
+    top: auto;
+    bottom: clamp(var(--space-lg), 4vw, var(--space-2xl));
+    right: var(--gutter-x);
+  }
+  .hero__mark {
+    width: min(46vw, 360px);
+    right: 11%;
+  }
+  .hero__mark-img {
+    opacity: 0.12;
+  }
+}
+
+/* ---------- HERO / NAV: mobile ---------- */
+@media (max-width: 767.98px) {
+  /* Inline nav → fullscreen menu on phones */
+  .nav {
+    display: none;
+  }
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  /* Drop the asymmetric indent on phones so the headline uses full width */
+  .hero__line--offset {
+    margin-left: 0;
+  }
+  .hero__headline {
+    overflow-wrap: normal;
+    word-break: keep-all;
+    hyphens: none;
+  }
+  .hero__subtitle {
+    font-size: var(--fs-body);
+    letter-spacing: var(--ls-wide);
+  }
+  /* A promoted layer renders text as a bitmap on phones → soft type */
+  .hero__content {
+    will-change: auto;
+  }
+
+  /* Editorial meta is decorative — drop it on phones to protect space */
+  .hero__meta {
+    display: none;
+  }
+
+  /* ---- SELECTED WORK: single column ---- */
+  .work__grid {
+    grid-template-columns: 1fr;
+  }
+  .work__rail {
+    display: none;
+  }
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    min-height: 0;
+    padding-block: var(--space-2xl);
+  }
+  .project--right .project__media,
+  .project--right .project__info {
+    order: 0;
+    grid-row: auto;
+  }
+  .project__frame {
+    aspect-ratio: 4 / 3;
+  }
+  .project__num {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+    top: -0.5em;
+  }
+  .project--left .project__num,
+  .project--right .project__num {
+    left: auto;
+    right: 0.1em;
+  }
+  .project__desc {
+    max-width: none;
+  }
+
+  /* ---- PROJECT VIEW: mobile ---- */
+  .pv__meta {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg) var(--grid-gutter);
+  }
+  .pv__close {
+    top: 0.75rem;
+  }
+  .pv__act-text {
+    font-size: var(--fs-body);
+  }
+
+  .hero__mark {
+    width: 59vw;
+    right: -4%;
+  }
+  .hero__mark-img {
+    opacity: 0.1;
+  }
+}
+
+/* Project view meta: two columns on tablet */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .pv__meta {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer__brand {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+}
+
+/* ---------- SMALL PHONES ( < 400 ) ---------- */
+@media (max-width: 399.98px) {
+  :root {
+    --gutter-x: 1rem;
+  }
+}
+
+/* ---------- LARGE DESKTOP ( >= 1600 ) ---------- */
+@media (min-width: 1600px) {
+  :root {
+    --content-max: 1320px;
+  }
+}
+
+/* ---------- POINTER / TOUCH CAPABILITY ----------
+   Coarse pointer (touch): no custom cursor, larger targets,
+   no hover-dependent reveals as the sole affordance.          */
+@media (hover: none), (pointer: coarse) {
+  .btn:hover {
+    transform: none;
+  }
+  .link::after {
+    /* keep a subtle persistent hint instead of hover-only */
+    transform: scaleX(1);
+    opacity: 0.4;
+    transform-origin: left center;
+  }
+}
+
+/* ---------- ABOUT: tablet & below ---------- */
+@media (max-width: 767.98px) {
+  .about__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    align-items: stretch;
+  }
+  .about__portrait {
+    max-width: 300px;
+  }
+  /* sized so "DES EXPÉRIENCES" holds on one line down to 320px */
+  .about__statement {
+    font-size: clamp(1.75rem, 0.5rem + 7vw, 3rem);
+    line-height: 1.02;
+  }
+  .about__line:nth-child(2) {
+    padding-left: 0;
+  }
+  .about__lead {
+    max-width: none;
+  }
+  .about__values-grid {
+    grid-template-columns: 1fr;
+  }
+  /* stats: one row each, number beside its label (3 columns is too tight) */
+  .about__stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  .about__stat {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-md);
+  }
+  .about__stat-num {
+    flex: none;
+    min-width: 1.4em;
+    font-size: clamp(2.25rem, 1.5rem + 6vw, 3.5rem);
+  }
+  .about__stat-label {
+    line-height: 1.5;
+  }
+
+  /* ---- DIGITAL LAB: single column ---- */
+  .lab__grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ---- SERVICES: stacked; same outline → fill effect as desktop,
+     triggered on scroll (.is-active) instead of hover ---- */
+  .service {
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    gap: var(--space-sm);
+    row-gap: var(--space-xs);
+  }
+  .service__name {
+    font-size: clamp(1.6rem, 1rem + 5vw, 2.6rem);
+    white-space: normal;
+  }
+  .service__desc {
+    grid-column: 2 / -1;
+    justify-self: start;
+    text-align: left;
+    max-width: none;
+  }
+
+  /* ---- TECH STACK: stack list over display ---- */
+  .stack__body {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .stack__list {
+    border-right: 0;
+    border-bottom: var(--border-hairline);
+  }
+  .tech {
+    padding: var(--space-sm) var(--space-md);
+  }
+  .stack__display {
+    min-height: 300px;
+  }
+
+  /* ---- PROCESS: single column, static counter ---- */
+  .process__body {
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+  }
+  .process__aside {
+    position: static;
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-sm);
+  }
+  .process__count {
+    font-size: 3.5rem;
+  }
+  .process__steps {
+    --steps-indent: 1.75rem;
+  }
+
+  /* ---- CONTACT / FOOTER ---- */
+  .contact__headline {
+    font-size: clamp(1.9rem, 1rem + 7vw, 3rem);
+  }
+  .contact__email {
+    font-size: clamp(1.35rem, 0.5rem + 6vw, 2.5rem);
+  }
+  .process__title {
+    font-size: clamp(2rem, 1rem + 8vw, 3.25rem);
+  }
+  /* brand / navigation + studio side by side / contact full width
+     (the long e-mail would otherwise squeeze its neighbour) */
+  .footer__grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "brand   brand"
+      "nav     studio"
+      "contact contact";
+    gap: var(--space-xl) var(--space-lg);
+  }
+  .footer__grid > :nth-child(1) { grid-area: brand; }
+  .footer__grid > :nth-child(2) { grid-area: nav; }
+  .footer__grid > :nth-child(3) { grid-area: contact; }
+  .footer__grid > :nth-child(4) { grid-area: studio; }
+  .footer__brand {
+    max-width: none;
+  }
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+}
+
+/* ---------- ORIENTATION: short landscape phones ---------- */
+@media (max-height: 480px) and (orientation: landscape) {
+  :root {
+    --section-py: clamp(2.5rem, 2rem + 4vw, 4rem);
+  }
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LMX Studio — Design System</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Preview fonts (Clash Display self-hosted later; Space Grotesk stands in) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+
+  <style>
+    /* Styleguide-only scaffolding (not part of the system) */
+    :root { --font-display: "Space Grotesk", system-ui, sans-serif; }
+    body { padding-bottom: var(--space-4xl); }
+    .sg-head { padding-block: var(--space-2xl) var(--space-lg); border-bottom: var(--border-hairline); }
+    .sg-block { padding-block: var(--space-2xl); border-bottom: var(--border-hairline); }
+    .sg-title { display: flex; align-items: baseline; gap: var(--space-md); margin-bottom: var(--space-xl); }
+    .sg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-md); }
+    .swatch { border-radius: var(--radius-md); overflow: hidden; border: var(--border-metal); }
+    .swatch__chip { height: 96px; }
+    .swatch__meta { padding: var(--space-sm); background: var(--surface); font-size: var(--fs-small); }
+    .swatch__meta code { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-micro); }
+    .row { display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; }
+    .type-row { display: flex; align-items: baseline; gap: var(--space-md); padding-block: var(--space-xs); border-bottom: 1px dashed var(--line); }
+    .type-row code { font-family: var(--font-mono); font-size: var(--fs-micro); color: var(--text-faint); margin-left: auto; white-space: nowrap; }
+    .space-bar { height: 14px; background: var(--accent-soft); border-left: 2px solid var(--accent); }
+    .demo-box { display: grid; place-items: center; height: 90px; color: var(--text-muted); font-size: var(--fs-small); }
+    .grid-demo > * { background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: var(--radius-sm); text-align: center; padding: var(--space-sm) 0; font-size: var(--fs-small); color: var(--text-muted); }
+    .easing-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); }
+    .ease-track { flex: 1; height: 2px; background: var(--line-strong); position: relative; }
+    .toc a { display: inline-block; margin-right: var(--space-md); }
+  </style>
+</head>
+<body class="no-cursor">
+  <div class="container">
+    <header class="sg-head">
+      <p class="label">LMX Studio</p>
+      <h1 class="display text-metal">Design System</h1>
+      <p class="lead">Concept « Matière &amp; Lumière ». Fondations visuelles — tokens, typographie, grille, profondeur et motion. Aucune section du site n'est encore construite.</p>
+      <nav class="toc text-small text-muted" style="margin-top: var(--space-lg)">
+        <a class="link link--muted" href="#colors">Couleurs</a>
+        <a class="link link--muted" href="#type">Typographie</a>
+        <a class="link link--muted" href="#space">Espacements</a>
+        <a class="link link--muted" href="#grid">Grille</a>
+        <a class="link link--muted" href="#buttons">Boutons &amp; liens</a>
+        <a class="link link--muted" href="#depth">Bordures &amp; profondeur</a>
+        <a class="link link--muted" href="#light">Lumière</a>
+        <a class="link link--muted" href="#motion">Motion</a>
+      </nav>
+    </header>
+
+    <!-- COLORS -->
+    <section class="sg-block" id="colors">
+      <div class="sg-title"><span class="numeral">01</span><h2>Palette</h2></div>
+      <div class="sg-grid">
+        <div class="swatch"><div class="swatch__chip" style="background:var(--c-black)"></div><div class="swatch__meta">Black<br><code>#050505</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--c-dark)"></div><div class="swatch__meta">Dark<br><code>#0B0B0B</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--c-dark-grey)"></div><div class="swatch__meta">Dark Grey<br><code>#151515</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--c-silver)"></div><div class="swatch__meta">Silver<br><code>#D8D8D8</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--c-white)"></div><div class="swatch__meta">White<br><code>#F5F5F5</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--c-gold)"></div><div class="swatch__meta">Gold Accent<br><code>#C99A4A</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--metal-silver)"></div><div class="swatch__meta">Metal Silver<br><code>gradient</code></div></div>
+        <div class="swatch"><div class="swatch__chip" style="background:var(--c-dark);background-image:var(--metal-gold-edge)"></div><div class="swatch__meta">Gold Edge<br><code>gradient</code></div></div>
+      </div>
+    </section>
+
+    <!-- TYPOGRAPHY -->
+    <section class="sg-block" id="type">
+      <div class="sg-title"><span class="numeral">02</span><h2>Typographie</h2></div>
+      <div class="type-row"><span class="display">LMX</span><code>--fs-display</code></div>
+      <div class="type-row"><h1 style="margin:0">Creative Developer</h1><code>--fs-h1</code></div>
+      <div class="type-row"><h2 style="margin:0">Selected Work</h2><code>--fs-h2</code></div>
+      <div class="type-row"><h3 style="margin:0">Approche &amp; méthode</h3><code>--fs-h3</code></div>
+      <div class="type-row"><h4 style="margin:0">Sous-titre de section</h4><code>--fs-h4</code></div>
+      <div class="type-row"><span class="lead">Texte d'introduction — la lumière révèle la matière.</span><code>--fs-lead</code></div>
+      <div class="type-row"><span>Corps de texte courant, lisible et sobre pour la lecture.</span><code>--fs-body</code></div>
+      <div class="type-row"><span class="label">Studio — Design &amp; Development</span><code>--fs-label / --ls-label</code></div>
+      <div class="type-row"><span class="numeral">01 · 02 · 03</span><code>numeral (mono)</code></div>
+    </section>
+
+    <!-- SPACING -->
+    <section class="sg-block" id="space">
+      <div class="sg-title"><span class="numeral">03</span><h2>Espacements</h2></div>
+      <div class="stack">
+        <div class="row"><code style="width:120px;font-family:var(--font-mono);font-size:var(--fs-micro)">3xs · 4px</code><div class="space-bar" style="width:4px"></div></div>
+        <div class="row"><code style="width:120px;font-family:var(--font-mono);font-size:var(--fs-micro)">2xs · 8px</code><div class="space-bar" style="width:8px"></div></div>
+        <div class="row"><code style="width:120px;font-family:var(--font-mono);font-size:var(--fs-micro)">sm · 16px</code><div class="space-bar" style="width:16px"></div></div>
+        <div class="row"><code style="width:120px;font-family:var(--font-mono);font-size:var(--fs-micro)">md · 24px</code><div class="space-bar" style="width:24px"></div></div>
+        <div class="row"><code style="width:120px;font-family:var(--font-mono);font-size:var(--fs-micro)">lg · 32px</code><div class="space-bar" style="width:32px"></div></div>
+        <div class="row"><code style="width:120px;font-family:var(--font-mono);font-size:var(--fs-micro)">xl · 48px</code><div class="space-bar" style="width:48px"></div></div>
+        <div class="row"><code style="width:120px;font-family:var(--font-mono);font-size:var(--fs-micro)">2xl · 72px</code><div class="space-bar" style="width:72px"></div></div>
+        <div class="row"><code style="width:120px;font-family:var(--font-mono);font-size:var(--fs-micro)">3xl · 112px</code><div class="space-bar" style="width:112px"></div></div>
+      </div>
+    </section>
+
+    <!-- GRID -->
+    <section class="sg-block" id="grid">
+      <div class="sg-title"><span class="numeral">04</span><h2>Grille — 12 colonnes</h2></div>
+      <div class="grid grid-demo" style="margin-bottom:var(--space-md)">
+        <div class="col-1">1</div><div class="col-1">1</div><div class="col-1">1</div><div class="col-1">1</div>
+        <div class="col-1">1</div><div class="col-1">1</div><div class="col-1">1</div><div class="col-1">1</div>
+        <div class="col-1">1</div><div class="col-1">1</div><div class="col-1">1</div><div class="col-1">1</div>
+      </div>
+      <div class="grid grid-demo">
+        <div class="col-7">col-7 · titre</div>
+        <div class="col-5">col-5 · média</div>
+        <div class="col-4 start-3">col-4 · start-3 (asymétrie)</div>
+        <div class="col-5">col-5</div>
+      </div>
+    </section>
+
+    <!-- BUTTONS & LINKS -->
+    <section class="sg-block" id="buttons">
+      <div class="sg-title"><span class="numeral">05</span><h2>Boutons &amp; liens</h2></div>
+      <div class="row" style="margin-bottom:var(--space-lg)">
+        <button class="btn btn--primary">Voir le travail</button>
+        <button class="btn btn--accent">Me contacter</button>
+        <button class="btn btn--ghost">En savoir plus</button>
+      </div>
+      <div class="row">
+        <a class="link" href="#">Lien éditorial</a>
+        <a class="link link--muted" href="#">Lien discret</a>
+        <span class="text-muted text-small">(survol : le filet doré se dessine)</span>
+      </div>
+    </section>
+
+    <!-- BORDERS & DEPTH -->
+    <section class="sg-block" id="depth">
+      <div class="sg-title"><span class="numeral">06</span><h2>Bordures &amp; profondeur</h2></div>
+      <div class="sg-grid">
+        <div class="surface"><div class="demo-box">surface · shadow-1</div></div>
+        <div class="surface surface--raised"><div class="demo-box">raised · shadow-2 + rim</div></div>
+        <div class="surface surface--float"><div class="demo-box">float · shadow-3</div></div>
+      </div>
+      <div class="stack" style="margin-top:var(--space-xl)">
+        <hr class="rule" />
+        <hr class="rule rule--strong" />
+        <hr class="rule rule--accent" />
+      </div>
+    </section>
+
+    <!-- LIGHT -->
+    <section class="sg-block" id="light">
+      <div class="sg-title"><span class="numeral">07</span><h2>Effets lumineux</h2></div>
+      <div class="row" style="gap:var(--space-xl)">
+        <span class="text-accent" style="text-shadow:var(--glow-gold-sm)">glow-sm</span>
+        <span class="text-accent" style="text-shadow:var(--glow-gold-md)">glow-md</span>
+        <span class="text-accent" style="text-shadow:var(--glow-gold-lg)">glow-lg</span>
+      </div>
+      <div class="light-line anim-gold-pulse" style="margin-top:var(--space-xl);max-width:520px"></div>
+      <p class="text-muted text-small" style="margin-top:var(--space-sm)">Ligne de lumière signature (pulsation lente).</p>
+    </section>
+
+    <!-- MOTION -->
+    <section class="sg-block" id="motion">
+      <div class="sg-title"><span class="numeral">08</span><h2>Règles d'animation</h2></div>
+      <div class="reveal-line" style="margin-bottom:var(--space-md)"><span class="h2" style="font-family:var(--font-display);font-size:var(--fs-h3)">Révélation par ligne masquée</span></div>
+      <p class="reveal-up text-muted">Primitive « emerge » — opacité + translation contrôlée.</p>
+      <div class="stack" style="margin-top:var(--space-xl);max-width:520px">
+        <div class="row"><code style="width:140px;font-family:var(--font-mono);font-size:var(--fs-micro)">ease-emphasis</code><div class="ease-track"></div></div>
+        <div class="row"><code style="width:140px;font-family:var(--font-mono);font-size:var(--fs-micro)">ease-metal</code><div class="ease-track"></div></div>
+        <div class="row"><code style="width:140px;font-family:var(--font-mono);font-size:var(--fs-micro)">ease-in-out</code><div class="ease-track"></div></div>
+      </div>
+      <p class="text-faint text-small" style="margin-top:var(--space-lg)">Durées : instant .12s · fast .24s · base .4s · slow .7s · reveal 1.4s — transform &amp; opacity uniquement · <code style="font-family:var(--font-mono)">prefers-reduced-motion</code> respecté.</p>
+    </section>
+  </div>
+
+  <script>
+    // Minimal in-view trigger so reveal primitives can be seen in the guide.
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add('is-inview'); });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.reveal-line, .reveal-up, .reveal-rule').forEach((el) => io.observe(el));
+  </script>
+</body>
+</html>
