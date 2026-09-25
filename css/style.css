@@ -116,10 +116,7 @@ small,
 /* ---------- LINKS ---------- */
 a {
   color: var(--text);
-  transition: color var(--dur-fast) var(--ease-out);
-}
-a:hover {
-  color: var(--text);
+  transition: color var(--dur-hover) var(--ease-out);
 }
 
 /* Editorial underline link: gold hairline draws in on hover */
@@ -139,9 +136,10 @@ a:hover {
   background: var(--accent);
   transform: scaleX(0);
   transform-origin: right center;
-  transition: transform var(--dur-base) var(--ease-out);
+  transition: transform var(--dur-hover) var(--ease-out);
 }
-.link:hover::after,
+/* Focus is not hover: the keyboard affordance must never be gated behind a
+   pointer capability query. */
 .link:focus-visible::after {
   transform: scaleX(1);
   transform-origin: left center;
@@ -151,8 +149,48 @@ a:hover {
 .link--muted {
   color: var(--text-muted);
 }
-.link--muted:hover {
-  color: var(--text);
+
+@media (hover: hover) and (pointer: fine) {
+  .link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  .link--muted:hover {
+    color: var(--text);
+  }
+}
+
+/* ---------- PRESS FEEDBACK ----------
+   Touch has no hover, and reset.css removes the browser's tap highlight, so
+   :active is the ONLY thing telling a finger the interface heard it. It fires
+   on pointer-down, on every input type, and it is the cheapest credibility
+   the site can buy. Scale is subtle by target size: 0.97 on buttons, 0.985 on
+   large cards where 0.97 would read as a lurch. */
+.wa-btn:active,
+.nav-toggle:active,
+.brand:active,
+.footer__logo-link:active {
+  transform: scale(0.97);
+}
+.pcard:active {
+  transform: scale(0.985);
+}
+.nav-toggle,
+.brand,
+.footer__logo-link,
+.pcard {
+  transition: transform var(--dur-press) var(--ease-out);
+}
+/* Text links do not scale — a shifting word reads as a glitch. They dim
+   instead, which is the same signal in the medium that suits them. */
+.nav__link:active,
+.menu__link:active,
+.link:active,
+.contact__email:active,
+.hero__scroll:active,
+.service:active {
+  opacity: 0.6;
+  transition-duration: var(--dur-press);
 }
 
 /* ---------- FOCUS (accessibility) ---------- */
@@ -204,40 +242,26 @@ a:hover {
   border: 1px solid var(--_bd);
   border-radius: var(--radius-pill);
   transition:
-    color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
-  will-change: transform;
+    color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out),
+    background-color var(--dur-hover) var(--ease-out),
+    transform var(--dur-press) var(--ease-out),
+    box-shadow var(--dur-hover) var(--ease-out);
 }
-.btn:hover {
-  transform: translateY(-2px);
-}
+/* Press wins over hover: the finger/cursor is down, the button answers. */
 .btn:active {
-  transform: translateY(0);
+  transform: scale(0.97);
 }
 
 /* Primary: silver fills on hover, text goes dark */
 .btn--primary {
   --_bd: var(--line-strong);
 }
-.btn--primary:hover {
-  --_fg: var(--text-inverse);
-  background: var(--c-silver);
-  border-color: var(--c-silver);
-  box-shadow: var(--glow-silver-sm);
-}
 
 /* Accent: the controlled gold — outline that lights up */
 .btn--accent {
   --_bd: var(--accent-line);
   --_fg: var(--accent);
-}
-.btn--accent:hover {
-  --_fg: var(--text);
-  border-color: var(--accent);
-  box-shadow: var(--glow-gold-md);
 }
 
 /* Ghost: minimal, for tertiary actions */
@@ -246,26 +270,28 @@ a:hover {
   --_fg: var(--text-muted);
   padding-inline: var(--space-sm);
 }
-.btn--ghost:hover {
-  --_fg: var(--text);
-}
 
-/* Icon button */
-.btn-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--tap-target);
-  height: var(--tap-target);
-  border-radius: var(--radius-circle);
-  color: var(--text-muted);
-  transition:
-    color var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out);
-}
-.btn-icon:hover {
-  color: var(--text);
-  background: rgba(var(--rgb-silver), 0.06);
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: translateY(-2px) scale(0.97);
+  }
+  .btn--primary:hover {
+    --_fg: var(--text-inverse);
+    background: var(--c-silver);
+    border-color: var(--c-silver);
+    box-shadow: var(--glow-silver-sm);
+  }
+  .btn--accent:hover {
+    --_fg: var(--text);
+    border-color: var(--accent);
+    box-shadow: var(--glow-gold-md);
+  }
+  .btn--ghost:hover {
+    --_fg: var(--text);
+  }
 }
 
 /* ---------- SURFACES / DEPTH ---------- */
@@ -431,6 +457,15 @@ html.is-loading body {
   pointer-events: none;
 }
 
+/* No JS claimed the page (disabled, parse error, blocked bundle):
+   the loader would otherwise be an opaque overlay nothing can lift.
+   `.seen` is a returning visit inside the same session — the loader is
+   never painted at all, so there is no flash to hide. */
+html:not(.js) .preloader,
+html.seen .preloader {
+  display: none;
+}
+
 .preloader__inner {
   position: relative;
   display: flex;
@@ -454,7 +489,6 @@ html.is-loading body {
   width: clamp(100px, 17vw, 220px);
   height: auto;
   opacity: 0; /* revealed by GSAP; see reduced-motion override below */
-  will-change: opacity, transform, filter;
 }
 
 /* Single gold edge of light sweeping across the mark */
@@ -551,6 +585,9 @@ html.is-loading body {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: var(--z-nav);
+  /* viewport-fit=cover lets the page under the notch; pad the CONTENT back
+     out so the logo and the menu button never sit in the status-bar zone. */
+  padding-top: env(safe-area-inset-top, 0px);
   transition:
     transform var(--dur-base) var(--ease-out),
     background-color var(--dur-base) var(--ease-out),
@@ -576,6 +613,7 @@ html.is-loading body {
 .brand {
   display: inline-flex;
   align-items: center;
+  min-height: var(--tap-target);
   line-height: 0;
 }
 .brand__logo {
@@ -625,23 +663,45 @@ html.is-loading body {
   background: var(--accent);
   transform: scaleX(0);
   transform-origin: right center;
-  transition: transform var(--dur-base) var(--ease-out);
+  transition: transform var(--dur-hover) var(--ease-out);
 }
-.nav__link:hover,
 .nav__link:focus-visible {
   color: var(--text);
 }
-.nav__link:hover > span::after,
 .nav__link:focus-visible > span::after {
   transform: scaleX(1);
   transform-origin: left center;
+}
+/* ---- Where am I? ----
+   navigation.js sets aria-current on the link whose section owns the middle
+   of the screen. It reuses the underline that already exists rather than
+   introducing a second indicator, and it rides --dur-hover (180ms): this is
+   seen continuously while scrolling, so it must be felt, never watched. */
+.nav__link[aria-current] {
+  color: var(--text);
+}
+.nav__link[aria-current] > span::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav__link:hover {
+    color: var(--text);
+  }
+  .nav__link:hover > span::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
 }
 
 /* ---- CUSTOM TOGGLE (plus → cross, no generic hamburger) ---- */
 .nav-toggle {
   display: none; /* shown on mobile via responsive.css */
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-sm);
+  /* 44px is the minimum comfortable target; the glyph is only 20px tall */
+  min-height: var(--tap-target);
   color: var(--text);
   z-index: var(--z-overlay);
 }
@@ -656,6 +716,11 @@ html.is-loading body {
   position: relative;
   width: 20px;
   height: 20px;
+  transition: rotate var(--dur-menu) var(--ease-in-out);
+}
+/* plus → cross, in CSS so it still reads without GSAP */
+.nav-toggle.is-active .nav-toggle__glyph {
+  rotate: 45deg;
 }
 .nav-toggle__glyph span {
   position: absolute;
@@ -675,15 +740,32 @@ html.is-loading body {
 /* ============================================================
    MOBILE FULLSCREEN MENU
    ============================================================ */
+/* ---- The menu opens in CSS on its own ----
+   GSAP overwrites these with inline styles when it is available and drives
+   the richer choreography. When it is NOT (blocked CDN, corporate proxy,
+   flaky network, reduced motion) these rules are the whole open state, so
+   the mobile navigation keeps working instead of rendering as white text
+   floating over the hero on an invisible background. */
 .menu {
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
   visibility: hidden;
+  /* hold visibility through the closing transitions, then hide */
+  transition: visibility 0s linear var(--dur-menu-out);
 }
 .menu.is-open {
   visibility: visible;
+  transition-delay: 0s;
 }
+
+/* ---- Asymmetric timing ----
+   Every closed-state rule below carries the FAST exit (200ms, no delay);
+   every .is-open rule carries the slower, staggered entrance (320ms).
+   Opening is the user deciding — it may take its time and cascade.
+   Closing is the system answering — it snaps, all at once. Putting the
+   delays on the base rules would have made the exit cascade too, which
+   reads as the menu being reluctant to leave. */
 .menu__bg {
   position: absolute;
   inset: 0;
@@ -691,17 +773,28 @@ html.is-loading body {
   background-image: var(--ambient-wash);
   transform: scaleY(0);
   transform-origin: top center;
-  will-change: transform;
+  transition: transform var(--dur-menu-out) var(--ease-out);
+}
+.menu.is-open .menu__bg {
+  transform: scaleY(1);
+  transition: transform var(--dur-menu) var(--ease-drawer);
 }
 .menu__nav {
   position: relative;
   height: 100%;
-  height: 100svh;
+  /* dvh, not svh: the panel is app chrome and should track the visible area
+     as the URL bar collapses, rather than leaving a strip of hero showing. */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: calc(var(--header-h) + var(--space-lg)) var(--gutter-x)
-    var(--space-2xl);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding:
+    calc(var(--header-h) + var(--space-lg) + env(safe-area-inset-top, 0px))
+    calc(var(--gutter-x) + env(safe-area-inset-right, 0px))
+    calc(var(--space-2xl) + env(safe-area-inset-bottom, 0px))
+    calc(var(--gutter-x) + env(safe-area-inset-left, 0px));
 }
 .menu__list {
   list-style: none;
@@ -719,6 +812,11 @@ html.is-loading body {
   background: var(--line-strong);
   transform: scaleX(0);
   transform-origin: left center;
+  transition: transform var(--dur-menu-out) var(--ease-out);
+}
+.menu.is-open .menu__rule {
+  transform: scaleX(1);
+  transition: transform var(--dur-menu) var(--ease-out) 100ms;
 }
 .menu__rule--last {
   position: relative;
@@ -735,6 +833,12 @@ html.is-loading body {
   font-size: var(--fs-label);
   letter-spacing: var(--ls-wide);
   color: var(--accent);
+  opacity: 0;
+  transition: opacity var(--dur-menu-out) var(--ease-out);
+}
+.menu.is-open .menu__index {
+  opacity: 1;
+  transition: opacity var(--dur-pop) var(--ease-out) 180ms;
 }
 .menu__label {
   display: block;
@@ -747,21 +851,53 @@ html.is-loading body {
 }
 .menu__label > span {
   display: block;
+  transform: translateY(110%);
+  transition: transform var(--dur-menu-out) var(--ease-out);
 }
-.menu__link:hover .menu__label > span,
-.menu__link:focus-visible .menu__label > span {
+.menu.is-open .menu__label > span {
+  transform: translateY(0);
+  transition: transform var(--dur-menu) var(--ease-drawer) 140ms;
+}
+/* 60ms cascade — the top of the 30–80ms band. Longer and the list stops
+   reading as one motion and starts reading as a queue. Entrance only. */
+.menu.is-open .menu__item:nth-child(2) .menu__label > span { transition-delay: 200ms; }
+.menu.is-open .menu__item:nth-child(3) .menu__label > span { transition-delay: 260ms; }
+.menu.is-open .menu__item:nth-child(4) .menu__label > span { transition-delay: 320ms; }
+.menu.is-open .menu__item:nth-child(2) .menu__index { transition-delay: 240ms; }
+.menu.is-open .menu__item:nth-child(3) .menu__index { transition-delay: 300ms; }
+.menu.is-open .menu__item:nth-child(4) .menu__index { transition-delay: 360ms; }
+
+.menu__link:focus-visible .menu__label > span,
+.menu__link[aria-current] .menu__label > span {
   background: var(--metal-silver);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+@media (hover: hover) and (pointer: fine) {
+  .menu__link:hover .menu__label > span {
+    background: var(--metal-silver);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 .menu__footer {
   margin-top: var(--space-2xl);
   display: flex;
   flex-direction: column;
   gap: var(--space-2xs);
+  opacity: 0;
+  transition: opacity var(--dur-menu-out) var(--ease-out);
+}
+.menu.is-open .menu__footer {
+  opacity: 1;
+  transition: opacity var(--dur-pop) var(--ease-out) 400ms;
 }
 .menu__mail {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
   font-size: var(--fs-lead);
   color: var(--text);
 }
@@ -784,16 +920,29 @@ html.menu-open .site-header {
   transform: none !important;
 }
 
-/* Reduced motion: menu appears/leaves without choreography */
+/* Reduced motion: the menu still opens and still fades — it just does not
+   travel. Movement goes, opacity stays, because opacity is what tells the
+   user the panel arrived. (Fewer and gentler, not zero.) */
 @media (prefers-reduced-motion: reduce) {
-  .menu__bg {
+  .menu__bg,
+  .menu.is-open .menu__bg {
     transform: scaleY(1);
   }
-  .menu__rule {
+  .menu__rule,
+  .menu.is-open .menu__rule {
     transform: scaleX(1);
   }
-  .menu__label > span {
+  .menu__label > span,
+  .menu.is-open .menu__label > span {
     transform: none;
+  }
+  .menu__index,
+  .menu__footer,
+  .menu.is-open .menu__index,
+  .menu.is-open .menu__footer,
+  .menu.is-open .menu__item:nth-child(n) .menu__label > span,
+  .menu.is-open .menu__item:nth-child(n) .menu__index {
+    transition-delay: 0s;
   }
 }
 
@@ -831,7 +980,14 @@ html.menu-open .site-header {
   position: relative;
   z-index: var(--z-raised);
   width: 100%;
-  will-change: transform, opacity;
+}
+/* Promote the layer only where something actually moves it (the cursor
+   parallax is desktop-only). A permanently promoted layer rasterises the
+   headline into a bitmap on phones, which is what made the type look soft. */
+@media (hover: hover) and (pointer: fine) {
+  .hero__content {
+    will-change: transform, opacity;
+  }
 }
 
 .hero__eyebrow {
@@ -883,27 +1039,17 @@ html.menu-open .site-header {
   padding-inline: 0.25em;
 }
 
-/* Editorial meta, top-right of the composition */
-.hero__meta {
-  position: absolute;
-  top: 22%;
-  right: var(--gutter-x);
-  text-align: right;
-  font-family: var(--font-mono);
-  font-size: var(--fs-micro);
-  letter-spacing: var(--ls-wide);
-  line-height: 1.8;
-  color: var(--text-faint);
-  z-index: var(--z-raised);
-}
-
 /* Scroll indicator, bottom-left */
 .hero__scroll {
   position: absolute;
-  left: var(--gutter-x);
-  bottom: clamp(var(--space-lg), 4vw, var(--space-2xl));
+  left: calc(var(--gutter-x) + env(safe-area-inset-left, 0px));
+  bottom: calc(
+    clamp(var(--space-lg), 4vw, var(--space-2xl)) +
+      env(safe-area-inset-bottom, 0px)
+  );
   display: inline-flex;
   align-items: center;
+  min-height: var(--tap-target);
   gap: var(--space-sm);
   z-index: var(--z-raised);
 }
@@ -959,6 +1105,7 @@ html.menu-open .site-header {
   gap: clamp(var(--space-lg), 4vw, var(--space-2xl));
 }
 .pcard {
+  container: pcard / inline-size;
   display: flex;
   flex-direction: column;
   color: inherit;
@@ -971,6 +1118,24 @@ html.menu-open .site-header {
   background: var(--surface);
   border: var(--border-metal);
   box-shadow: var(--shadow-2), var(--rim-metal);
+  /* The work reveals itself instead of appearing — the art direction
+     ("le contenu est révélé par la lumière") applied to the one element
+     that has to sell. `round` keeps the radius through the wipe.
+     Seen once per visit, so it is allowed the longer beat. */
+  clip-path: inset(0 0 100% 0 round var(--radius-md));
+  transition: clip-path var(--dur-slow) var(--ease-emphasis);
+  transition-delay: calc(var(--i, 0) * 80ms);
+}
+.pcard.is-revealed .pcard__media {
+  clip-path: inset(0 0 0 0 round var(--radius-md));
+}
+/* Motion is the enhancement, never the gate: without JS, without GSAP or
+   with reduced motion, the work is simply there. */
+@media (prefers-reduced-motion: reduce) {
+  .pcard__media {
+    clip-path: none;
+    transition: none;
+  }
 }
 .pcard__img {
   position: absolute;
@@ -979,11 +1144,15 @@ html.menu-open .site-header {
   height: 100%;
   object-fit: cover;
   object-position: top center;
-  transition: transform var(--dur-slow) var(--ease-out);
-  will-change: transform;
+  /* Hover sits in the "tens of times a day" tier: 700ms read as drag.
+     180ms is the whole point — felt, not watched. */
+  transition: transform var(--dur-hover) var(--ease-out);
 }
-.pcard:hover .pcard__img {
-  transform: scale(1.05);
+@media (hover: hover) and (pointer: fine) {
+  .pcard:hover .pcard__img,
+  .pcard:focus-visible .pcard__img {
+    transform: scale(1.04);
+  }
 }
 /* placeholder when no screenshot (protected site) */
 .pcard__ph {
@@ -991,9 +1160,34 @@ html.menu-open .site-header {
   inset: 0;
   display: grid;
   place-items: center;
+  overflow: hidden;
   background:
     radial-gradient(120% 120% at 25% 0%, rgba(var(--rgb-white), 0.06), transparent 55%),
     linear-gradient(135deg, #17171b, #0b0b0b 55%, #050505);
+}
+/* Shimmer — only because three of the four screenshots come from a
+   third-party render service whose latency we do not control. It says
+   "this is arriving", not "this is broken". It stops the moment the
+   image lands; linear, because a loading sheen is constant motion. */
+@keyframes ph-shimmer {
+  to { transform: translateX(100%); }
+}
+.pcard__ph::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--rgb-white), 0.045),
+    transparent
+  );
+  animation: ph-shimmer 1.4s linear infinite;
+}
+.pcard.is-loaded .pcard__ph::after {
+  animation: none;
+  opacity: 0;
 }
 .pcard__ph span {
   font-family: var(--font-display);
@@ -1014,12 +1208,24 @@ html.menu-open .site-header {
   color: var(--c-white);
   mix-blend-mode: difference;
 }
+/* The card answers to ITS OWN width, not the viewport's. At 834px the grid
+   was still two columns, each card 351px wide, and a side-by-side
+   title + CTA collided — a media query cannot see that, a container query
+   can. Stacked by default; side by side only once the card can afford it. */
 .pcard__body {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-md);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
   padding-top: var(--space-md);
+}
+@container pcard (min-width: 420px) {
+  .pcard__body {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
 }
 .pcard__cat {
   color: var(--accent);
@@ -1030,6 +1236,14 @@ html.menu-open .site-header {
   font-size: clamp(1.35rem, 1rem + 1.4vw, 2rem);
   font-weight: var(--fw-semibold);
   letter-spacing: var(--ls-heading);
+  text-wrap: balance;
+}
+.pcard__desc {
+  margin-top: var(--space-2xs);
+  max-width: 42ch;
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  color: var(--text-muted);
 }
 .pcard__cta {
   flex: none;
@@ -1040,203 +1254,19 @@ html.menu-open .site-header {
   letter-spacing: var(--ls-wide);
   text-transform: uppercase;
   color: var(--text-muted);
-  transition: color var(--dur-base) var(--ease-out);
-}
-.pcard:hover .pcard__cta {
-  color: var(--accent);
+  transition: color var(--dur-hover) var(--ease-out);
 }
 .pcard__arrow {
-  transition: transform var(--dur-base) var(--ease-out);
+  transition: transform var(--dur-hover) var(--ease-out);
 }
-.pcard:hover .pcard__arrow {
-  transform: translate(2px, -2px);
-}
-
-/* Wayfinder rail (pinned on desktop) */
-.work__rail {
-  position: absolute;
-  top: 50vh;
-  left: var(--gutter-x);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-  font-family: var(--font-mono);
-  font-size: var(--fs-micro);
-  letter-spacing: var(--ls-wide);
-  color: var(--text-faint);
-  z-index: var(--z-raised);
-}
-.work__rail-index {
-  color: var(--accent);
-  font-size: var(--fs-small);
-}
-.work__rail-bar {
-  position: relative;
-  width: 1px;
-  height: 120px;
-  background: var(--line-strong);
-  overflow: hidden;
-}
-.work__rail-bar i {
-  position: absolute;
-  inset: 0;
-  background: var(--accent);
-  transform: scaleY(0);
-  transform-origin: top center;
-}
-
-.work__list {
-  list-style: none;
-}
-
-/* Each project = an editorial act */
-.project {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  column-gap: var(--grid-gutter);
-  align-items: center;
-  padding-block: var(--section-gap);
-}
-.project--left .project__media {
-  grid-column: 1 / 8;
-}
-.project--left .project__info {
-  grid-column: 8 / 12;
-}
-.project--right .project__media {
-  grid-column: 6 / 13;
-  order: 2;
-}
-.project--right .project__info {
-  grid-column: 2 / 6;
-  grid-row: 1;
-}
-
-.project__media {
-  position: relative;
-  display: block;
-  color: inherit;
-  perspective: 1200px; /* enables the very light hover tilt */
-}
-.project__frame {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 4 / 5;
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-2), var(--rim-metal);
-  transform-style: preserve-3d;
-}
-.project__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.06);
-  will-change: transform;
-}
-/* Oversized index number straddling the frame */
-.project__num {
-  position: absolute;
-  top: -0.55em;
-  z-index: var(--z-raised);
-  font-size: clamp(3rem, 6vw, 6rem);
-  font-weight: var(--fw-bold);
-  color: var(--text);
-  mix-blend-mode: difference;
-  pointer-events: none;
-}
-.project--left .project__num {
-  right: -0.2em;
-}
-.project--right .project__num {
-  left: -0.2em;
-}
-
-.project__info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-.project__category {
-  color: var(--accent);
-}
-.project__title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 1rem + 3.4vw, 3.5rem);
-  font-weight: var(--fw-semibold);
-  line-height: var(--lh-heading);
-  letter-spacing: var(--ls-heading);
-  overflow: hidden;
-}
-.project__title > span {
-  display: block;
-}
-.project__desc {
-  color: var(--text-muted);
-  max-width: 42ch;
-}
-.project__tech {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2xs) var(--space-sm);
-  margin-top: var(--space-2xs);
-}
-.project__tech-item {
-  font-size: var(--fs-micro);
-  letter-spacing: var(--ls-wide);
-  text-transform: uppercase;
-  color: var(--text-faint);
-  padding: 0.35em 0.8em;
-  border: var(--border-hairline);
-  border-radius: var(--radius-pill);
-}
-.project__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-  padding-top: var(--space-md);
-  border-top: var(--border-hairline);
-}
-.project__year {
-  color: var(--text-faint);
-}
-.project__link {
-  font-size: var(--fs-small);
-  letter-spacing: var(--ls-wide);
-  text-transform: uppercase;
-}
-
-/* Custom hover cursor tag (desktop) */
-.work-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: var(--z-cursor);
-  padding: 0.65em 1.1em;
-  font-family: var(--font-body);
-  font-size: var(--fs-micro);
-  font-weight: var(--fw-medium);
-  letter-spacing: var(--ls-wide);
-  text-transform: uppercase;
-  color: var(--text-inverse);
-  background: var(--c-silver);
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.6);
-  will-change: transform;
-}
-
-/* Reduced motion: everything is already in its final, legible state */
-@media (prefers-reduced-motion: reduce) {
-  .project__img {
-    transform: scale(1);
+@media (hover: hover) and (pointer: fine) {
+  .pcard:hover .pcard__cta,
+  .pcard:focus-visible .pcard__cta {
+    color: var(--accent);
+  }
+  .pcard:hover .pcard__arrow,
+  .pcard:focus-visible .pcard__arrow {
+    transform: translate(2px, -2px);
   }
 }
 
@@ -1268,7 +1298,6 @@ html.menu-open .site-header {
 }
 .about__line > span {
   display: block;
-  will-change: transform;
 }
 /* second line indented for editorial asymmetry */
 .about__line:nth-child(2) {
@@ -1356,6 +1385,7 @@ html.menu-open .site-header {
 }
 .about__stat-num {
   font-family: var(--font-display);
+  font-variant-numeric: tabular-nums; /* see .skill__pct */
   font-size: clamp(2.75rem, 1.5rem + 5vw, 6rem);
   font-weight: var(--fw-bold);
   line-height: 1;
@@ -1403,65 +1433,10 @@ html.menu-open .site-header {
   max-width: 44ch;
 }
 
-/* Disciplines — outline words that fill on scroll */
-.about__disciplines {
-  list-style: none;
-  margin-top: clamp(var(--space-2xl), 6vw, var(--space-4xl));
-  border-top: var(--border-hairline);
-  overflow: hidden;
-}
-.disc {
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  gap: clamp(var(--space-md), 3vw, var(--space-2xl));
-  padding-block: clamp(var(--space-md), 2.5vw, var(--space-xl));
-  border-bottom: var(--border-hairline);
-  will-change: transform;
-}
-.disc__num {
-  flex: none;
-  font-size: var(--fs-small);
-  color: var(--accent);
-}
-.disc__word {
-  position: relative;
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 0.8rem + 3vw, 3.4rem);
-  font-weight: var(--fw-semibold);
-  line-height: 1;
-  letter-spacing: var(--ls-heading);
-  text-transform: uppercase;
-  white-space: nowrap;
-  max-width: 100%;
-}
-.disc__outline {
-  -webkit-text-stroke: 1px rgba(var(--rgb-silver), 0.5);
-  color: transparent;
-}
-.disc__fill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  white-space: nowrap;
-  background: var(--metal-silver);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  clip-path: inset(0 100% 0 0);
-}
-.disc:hover .disc__fill {
-  clip-path: inset(0 0% 0 0);
-  transition: clip-path var(--dur-slow) var(--ease-out);
-}
-
-/* Reduced motion: statement legible, disciplines filled */
+/* Reduced motion: the statement is legible without its rise */
 @media (prefers-reduced-motion: reduce) {
   .about__line > span {
     transform: none !important;
-  }
-  .disc__fill {
-    clip-path: inset(0 0% 0 0);
   }
 }
 
@@ -1527,10 +1502,10 @@ html.has-cursor * {
   border: 1px solid rgba(var(--rgb-silver), 0.35);
   background: transparent;
   transition:
-    width var(--dur-base) var(--ease-out),
-    height var(--dur-base) var(--ease-out),
-    background-color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out);
+    width var(--dur-pop) var(--ease-out),
+    height var(--dur-pop) var(--ease-out),
+    background-color var(--dur-pop) var(--ease-out),
+    border-color var(--dur-pop) var(--ease-out);
   will-change: transform;
 }
 .cursor__label {
@@ -1669,10 +1644,15 @@ html.has-cursor * {
   letter-spacing: var(--ls-heading);
   color: var(--text);
   overflow-wrap: anywhere;
-  transition: color var(--dur-base) var(--ease-out);
+  transition: color var(--dur-hover) var(--ease-out);
 }
-.contact__email:hover {
+.contact__email:focus-visible {
   color: var(--accent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .contact__email:hover {
+    color: var(--accent);
+  }
 }
 .contact__cta-row {
   margin-top: var(--space-lg);
@@ -1693,14 +1673,22 @@ html.has-cursor * {
   letter-spacing: var(--ls-wide);
   text-transform: uppercase;
   transition:
-    color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
+    transform var(--dur-press) var(--ease-out),
+    color var(--dur-hover) var(--ease-out),
+    border-color var(--dur-hover) var(--ease-out),
+    box-shadow var(--dur-hover) var(--ease-out);
 }
-.wa-btn:hover {
+@media (hover: hover) and (pointer: fine) {
+  .wa-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    box-shadow: var(--glow-gold-md);
+  }
+}
+/* Keyboard users get the same lit state */
+.wa-btn:focus-visible {
   color: var(--text);
   border-color: var(--accent);
-  box-shadow: var(--glow-gold-md);
 }
 .wa-btn__icon {
   width: 20px;
@@ -1718,7 +1706,8 @@ html.has-cursor * {
    ============================================================ */
 .footer {
   position: relative;
-  padding-block: clamp(var(--space-2xl), 5vw, var(--space-3xl)) var(--space-lg);
+  padding-block: clamp(var(--space-2xl), 5vw, var(--space-3xl))
+    calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
 }
 .footer__seam {
   display: block;
@@ -1736,7 +1725,9 @@ html.has-cursor * {
   max-width: 34ch;
 }
 .footer__logo-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
 }
 .footer__logo {
   width: clamp(72px, 6vw, 96px);
@@ -1760,8 +1751,17 @@ html.has-cursor * {
 .footer__col {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-3xs);
   align-items: flex-start;
+}
+/* Footer links measured 28px tall — below the comfortable touch minimum.
+   Padding grows the target without pushing the list apart, because the
+   column gap shrinks by the same amount. */
+.footer__col .link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+  padding-block: 0;
 }
 .footer__col-title {
   color: var(--accent);
@@ -2007,13 +2007,13 @@ html.has-cursor * {
   gap: clamp(var(--space-md), 3vw, var(--space-2xl));
   padding-block: clamp(var(--space-lg), 3vw, var(--space-2xl));
   border-bottom: var(--border-hairline);
-  transition: color var(--dur-base) var(--ease-out);
+  transition: color var(--dur-hover) var(--ease-out);
 }
 .skill__num {
   flex: none;
   font-size: var(--fs-small);
   color: var(--text-faint);
-  transition: color var(--dur-fast) var(--ease-out);
+  transition: color var(--dur-hover) var(--ease-out);
 }
 .skill__name {
   font-family: var(--font-display);
@@ -2021,11 +2021,15 @@ html.has-cursor * {
   font-weight: var(--fw-semibold);
   letter-spacing: var(--ls-heading);
   color: var(--text-muted);
-  transition: color var(--dur-base) var(--ease-out);
+  transition: color var(--dur-hover) var(--ease-out);
 }
 .skill__pct {
   justify-self: end;
   font-family: var(--font-display);
+  /* Bricolage is proportional: "1" measures 12px where "8" measures 23px.
+     Counting 0→95 without this made the number shudder and slide sideways
+     on every frame. Fixed-width digits are the condition of a clean ticker. */
+  font-variant-numeric: tabular-nums;
   font-weight: var(--fw-bold);
   font-size: clamp(1.75rem, 1rem + 3vw, 3.75rem);
   line-height: 1;
@@ -2043,11 +2047,13 @@ html.has-cursor * {
   margin-left: 0.1em;
 }
 /* Hover: name lights up + gold index */
-.skill:hover .skill__name {
-  color: var(--text);
-}
-.skill:hover .skill__num {
-  color: var(--accent);
+@media (hover: hover) and (pointer: fine) {
+  .skill:hover .skill__name {
+    color: var(--text);
+  }
+  .skill:hover .skill__num {
+    color: var(--accent);
+  }
 }
 
 /* ============================================================
@@ -2090,7 +2096,7 @@ html.has-cursor * {
   flex: none;
   font-size: var(--fs-small);
   color: var(--text-faint);
-  transition: color var(--dur-fast) var(--ease-out);
+  transition: color var(--dur-hover) var(--ease-out);
 }
 /* Outline type by default → fills on hover (typography change) */
 .service__name {
@@ -2104,10 +2110,9 @@ html.has-cursor * {
   color: transparent;
   -webkit-text-stroke: 1px rgba(var(--rgb-silver), 0.55);
   transition:
-    color var(--dur-fast) var(--ease-out),
-    transform var(--dur-base) var(--ease-out),
-    opacity var(--dur-fast) var(--ease-out);
-  will-change: transform;
+    color var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out),
+    opacity var(--dur-hover) var(--ease-out);
 }
 .service__desc {
   justify-self: end;
@@ -2118,31 +2123,46 @@ html.has-cursor * {
   opacity: 0;
   transform: translateX(-12px);
   transition:
-    opacity var(--dur-fast) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
+    opacity var(--dur-hover) var(--ease-out),
+    transform var(--dur-hover) var(--ease-out);
 }
 
-/* Hover (or .is-active on touch, set on scroll by services.js):
-   fill type, gold number, slight shift, reveal description */
-.service:hover .service__name,
+/* .is-active is the touch path (services.js sets it on the row crossing the
+   middle of the screen). :hover is gated so a tap cannot leave a second row
+   stuck "active" while the scroll-driven one moves on. */
 .service.is-active .service__name {
   color: var(--text);
   -webkit-text-stroke-color: transparent;
   transform: translateX(clamp(0.5rem, 2vw, 2rem));
 }
-.service:hover .service__num,
 .service.is-active .service__num {
   color: var(--accent);
 }
-.service:hover .service__desc,
 .service.is-active .service__desc {
   opacity: 1;
   transform: translateX(0);
 }
-/* Spotlight: dim the other rows while one is hovered / active */
-.services__list:hover .service:not(:hover) .service__name,
 .services__list.has-active .service:not(.is-active) .service__name {
   opacity: 0.3;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .service:hover .service__name {
+    color: var(--text);
+    -webkit-text-stroke-color: transparent;
+    transform: translateX(clamp(0.5rem, 2vw, 2rem));
+  }
+  .service:hover .service__num {
+    color: var(--accent);
+  }
+  .service:hover .service__desc {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  /* Spotlight: dim the other rows while one is hovered */
+  .services__list:hover .service:not(:hover) .service__name {
+    opacity: 0.3;
+  }
 }
 
 /* Floating visual preview (desktop, JS-controlled) */
@@ -2210,473 +2230,3 @@ html.has-cursor * {
   }
 }
 
-/* ============================================================
-   DIGITAL LAB — experimental environment
-   A more technical, "instrument panel" atmosphere.
-   ============================================================ */
-.lab {
-  position: relative;
-  padding-block: var(--section-py);
-  background-color: var(--c-dark);
-  overflow: hidden;
-}
-/* Faint technical grid — the lab floor */
-.lab::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(var(--rgb-silver), 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--rgb-silver), 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(120% 90% at 50% 0%, #000 40%, transparent 85%);
-  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 40%, transparent 85%);
-  pointer-events: none;
-}
-.lab > * {
-  position: relative;
-}
-.lab__head {
-  margin-bottom: clamp(var(--space-xl), 4vw, var(--space-3xl));
-}
-.lab__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2xs);
-  font-family: var(--font-mono);
-  color: var(--text-muted);
-}
-.lab__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: var(--glow-gold-sm);
-  animation: gold-pulse 1.6s var(--ease-in-out) infinite;
-}
-.lab__title {
-  font-family: var(--font-display);
-  font-size: var(--fs-h1);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--ls-display);
-  margin-block: var(--space-sm) var(--space-md);
-}
-.lab__intro {
-  color: var(--text-muted);
-}
-
-.lab__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--grid-gutter);
-}
-
-/* Experiment module — an instrument panel */
-.exp {
-  position: relative;
-  background: rgba(var(--rgb-black), 0.5);
-  border: var(--border-metal);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  overflow: hidden;
-}
-/* corner brackets */
-.exp::before,
-.exp::after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 1px solid var(--accent-line);
-  pointer-events: none;
-}
-.exp::before {
-  top: 8px;
-  left: 8px;
-  border-right: 0;
-  border-bottom: 0;
-}
-.exp::after {
-  bottom: 8px;
-  right: 8px;
-  border-left: 0;
-  border-top: 0;
-}
-.exp__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-sm);
-}
-.exp__id {
-  font-size: var(--fs-micro);
-  letter-spacing: var(--ls-wide);
-  text-transform: uppercase;
-  color: var(--accent);
-}
-.exp__tag {
-  font-family: var(--font-mono);
-  font-size: var(--fs-micro);
-  letter-spacing: var(--ls-wide);
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-.exp__stage {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background:
-    radial-gradient(120% 120% at 30% 0%, rgba(var(--rgb-white), 0.05), transparent 55%),
-    var(--c-black);
-  cursor: crosshair;
-  display: grid;
-  place-items: center;
-}
-.exp__stage canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.exp__foot {
-  margin-top: var(--space-sm);
-}
-.exp__title {
-  font-family: var(--font-display);
-  font-size: var(--fs-h4);
-  font-weight: var(--fw-medium);
-  letter-spacing: var(--ls-heading);
-}
-.exp__desc {
-  font-size: var(--fs-small);
-  color: var(--text-muted);
-  margin-top: var(--space-3xs);
-}
-
-/* Exp 02 — kinetic type */
-.exp__text {
-  font-family: var(--font-display);
-  font-size: clamp(1.75rem, 1rem + 3vw, 3rem);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--ls-heading);
-  color: var(--text);
-  text-align: center;
-  padding-inline: var(--space-md);
-}
-.exp__char {
-  display: inline-block;
-  transition: transform var(--dur-fast) var(--ease-out);
-  will-change: transform;
-}
-.exp__char.is-scrambling {
-  color: var(--accent);
-}
-
-/* Exp 03 — magnetic field */
-.exp__rings {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  max-width: 80%;
-  max-height: 80%;
-  will-change: transform;
-}
-.exp__rings svg {
-  width: 100%;
-  height: 100%;
-}
-.exp__field {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-.exp__orb {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: var(--glow-gold-md);
-  will-change: transform;
-}
-
-/* Exp 04 — 3D fallback */
-.exp__fallback {
-  display: grid;
-  place-items: center;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lab__dot {
-    animation: none;
-  }
-}
-
-/* ============================================================
-   PROJECT VIEW — fullscreen case study
-   ============================================================ */
-html.pv-open,
-html.pv-open body {
-  overflow: hidden;
-}
-
-.pv {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal);
-  visibility: hidden;
-}
-.pv.is-open {
-  visibility: visible;
-}
-.pv__bg {
-  position: absolute;
-  inset: 0;
-  background-color: var(--c-black);
-  background-image: var(--ambient-wash);
-}
-
-.pv__close {
-  position: fixed;
-  top: clamp(1rem, 2vw, 2rem);
-  right: var(--gutter-x);
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  color: var(--text);
-  font-size: var(--fs-label);
-  font-weight: var(--fw-medium);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-}
-.pv__close-glyph {
-  position: relative;
-  width: 20px;
-  height: 20px;
-}
-.pv__close-glyph i {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 1.5px;
-  background: var(--text);
-}
-.pv__close-glyph i:first-child {
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-.pv__close-glyph i:last-child {
-  transform: translate(-50%, -50%) rotate(-45deg);
-  background: var(--accent);
-}
-
-.pv__scroll {
-  position: absolute;
-  inset: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* --- Fullscreen opening hero (the image dominates) --- */
-.pv__hero {
-  position: relative;
-  height: 100vh;
-  height: 100svh;
-  overflow: hidden;
-}
-.pv__hero-media {
-  position: absolute;
-  inset: 0;
-}
-.pv__hero-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.pv__hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(var(--rgb-black), 0.85) 0%,
-    rgba(var(--rgb-black), 0.1) 45%,
-    rgba(var(--rgb-black), 0.35) 100%
-  );
-}
-.pv__hero-caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: clamp(var(--space-xl), 6vw, var(--space-3xl));
-  z-index: 1;
-}
-.pv__hero-cat {
-  color: var(--accent);
-  margin-bottom: var(--space-sm);
-}
-.pv__hero-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-display);
-  font-weight: var(--fw-semibold);
-  line-height: var(--lh-tight);
-  letter-spacing: var(--ls-display);
-  overflow: hidden;
-}
-.pv__hero-title > span {
-  display: block;
-}
-
-/* --- Meta block --- */
-.pv__meta {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-xl) var(--grid-gutter);
-  padding-block: clamp(var(--space-2xl), 6vw, var(--space-4xl));
-  border-bottom: var(--border-hairline);
-}
-.pv__meta-label {
-  color: var(--text-faint);
-  margin-bottom: var(--space-2xs);
-}
-.pv__meta-value {
-  font-size: var(--fs-lead);
-  color: var(--text);
-}
-
-/* --- Narrative acts (big images dominate) --- */
-.pv__story {
-  padding-block: clamp(var(--space-2xl), 6vw, var(--space-4xl));
-}
-.pv__act {
-  padding-block: clamp(var(--space-2xl), 5vw, var(--space-3xl));
-}
-.pv__act-head {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-md);
-  margin-bottom: var(--space-lg);
-}
-.pv__act-num {
-  font-size: var(--fs-small);
-}
-.pv__act-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-h2);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--ls-heading);
-}
-.pv__act-text {
-  font-size: var(--fs-lead);
-  color: var(--text-muted);
-  max-width: 60ch;
-  margin-bottom: clamp(var(--space-xl), 4vw, var(--space-2xl));
-}
-.pv__media {
-  margin: 0;
-}
-.pv__media-ph {
-  position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background:
-    radial-gradient(120% 120% at 20% 0%, rgba(var(--rgb-white), 0.05), transparent 55%),
-    linear-gradient(135deg, #16161a, #0b0b0b 55%, #050505);
-  border: var(--border-metal);
-  box-shadow: var(--shadow-2), var(--rim-metal);
-}
-.pv__media-ph::before {
-  content: "";
-  position: absolute;
-  top: -10%;
-  left: 66%;
-  width: 2px;
-  height: 120%;
-  background: linear-gradient(180deg, transparent, var(--accent), transparent);
-  transform: rotate(16deg);
-  opacity: 0.5;
-}
-.pv__media-ph span {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 6vw, 5rem);
-  font-weight: var(--fw-bold);
-  letter-spacing: var(--ls-display);
-  background: var(--metal-silver);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  opacity: 0.85;
-  text-align: center;
-  padding-inline: var(--space-md);
-}
-.pv__media-ph em {
-  position: absolute;
-  bottom: var(--space-md);
-  font-family: var(--font-mono);
-  font-size: var(--fs-micro);
-  letter-spacing: var(--ls-wide);
-  text-transform: uppercase;
-  color: var(--text-faint);
-  font-style: normal;
-}
-/* When a real image is provided later, drop it in as <img> and it covers */
-.pv__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-}
-
-.pv__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-  padding-block: var(--space-3xl) var(--space-4xl);
-  border-top: var(--border-hairline);
-}
-
-/* FLIP transition clone */
-.pv__flip {
-  position: fixed;
-  z-index: 3;
-  overflow: hidden;
-  display: none;
-  will-change: top, left, width, height;
-}
-.pv__flip-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* In-view reveals for narrative (inner scroller) */
-[data-reveal-pv] {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity var(--dur-slow) var(--ease-out),
-    transform var(--dur-slow) var(--ease-out);
-}
-[data-reveal-pv].is-inview {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-reveal-pv] {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}

@@ -9,6 +9,7 @@
   "use strict";
 
   const { $, prefersReducedMotion, isTouch, gsapReady } = window.LMX.utils;
+  const { EASE, DUR } = window.LMX.motion;
 
   // Desktop + fine pointer + motion only
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -34,10 +35,10 @@
   gsap.set(cursor, { autoAlpha: 0 });
 
   // Smooth follow — dot fast, ring lags slightly
-  const dx = gsap.quickTo(dot, "x", { duration: 0.14, ease: "power3" });
-  const dy = gsap.quickTo(dot, "y", { duration: 0.14, ease: "power3" });
-  const rx = gsap.quickTo(ring, "x", { duration: 0.42, ease: "power3" });
-  const ry = gsap.quickTo(ring, "y", { duration: 0.42, ease: "power3" });
+  const dx = gsap.quickTo(dot, "x", { duration: 0.14, ease: EASE.follow });
+  const dy = gsap.quickTo(dot, "y", { duration: 0.14, ease: EASE.follow });
+  const rx = gsap.quickTo(ring, "x", { duration: 0.42, ease: EASE.follow });
+  const ry = gsap.quickTo(ring, "y", { duration: 0.42, ease: EASE.follow });
 
   let shown = false;
   window.addEventListener(
@@ -49,7 +50,7 @@
       ry(e.clientY);
       if (!shown) {
         shown = true;
-        gsap.to(cursor, { autoAlpha: 1, duration: 0.3 });
+        gsap.to(cursor, { autoAlpha: 1, duration: DUR.pop });
       }
     },
     { passive: true }
@@ -57,18 +58,18 @@
 
   // Hide when the pointer leaves the window
   document.addEventListener("mouseleave", () =>
-    gsap.to(cursor, { autoAlpha: 0, duration: 0.2 })
+    gsap.to(cursor, { autoAlpha: 0, duration: DUR.pop })
   );
   document.addEventListener("mouseenter", () =>
-    gsap.to(cursor, { autoAlpha: 1, duration: 0.2 })
+    gsap.to(cursor, { autoAlpha: 1, duration: DUR.pop })
   );
 
   // Press feedback (GSAP owns the transform, so scale composes cleanly)
   window.addEventListener("pointerdown", () =>
-    gsap.to(ring, { scale: 0.85, duration: 0.15, ease: "power3.out" })
+    gsap.to(ring, { scale: 0.85, duration: DUR.press, ease: EASE.out })
   );
   window.addEventListener("pointerup", () =>
-    gsap.to(ring, { scale: 1, duration: 0.2, ease: "power3.out" })
+    gsap.to(ring, { scale: 1, duration: DUR.press, ease: EASE.out })
   );
 
   // ---- State detection ----

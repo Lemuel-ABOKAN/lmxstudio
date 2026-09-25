@@ -7,6 +7,7 @@
   "use strict";
 
   const { $, $$, prefersReducedMotion, gsapReady } = window.LMX.utils;
+  const { EASE, DUR } = window.LMX.motion;
 
   function init() {
     const pcts = $$(".skill__pct");
@@ -28,7 +29,7 @@
           gsap.to(obj, {
             v: target,
             duration: 1.3,
-            ease: "power3.out",
+            ease: EASE.out,
             onUpdate: () => {
               el.textContent = Math.round(obj.v);
             },

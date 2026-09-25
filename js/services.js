@@ -8,6 +8,7 @@
   "use strict";
 
   const { $, $$, isTouch, prefersReducedMotion, gsapReady } = window.LMX.utils;
+  const { EASE, DUR } = window.LMX.motion;
 
   function init() {
     const list = $(".services__list");
@@ -30,8 +31,8 @@
             autoAlpha: 1,
             y: 0,
             duration: 0.7,
-            ease: "power3.out",
-            stagger: 0.08,
+            ease: EASE.out,
+            stagger: 0.06,
           }),
       });
     }
@@ -65,9 +66,27 @@
     const label = pv.querySelector("span");
     const img = pv.querySelector("img");
 
-    gsap.set(pv, { xPercent: -50, yPercent: -50, scale: 0.8, autoAlpha: 0 });
-    const qx = gsap.quickTo(pv, "x", { duration: 0.5, ease: "power3" });
-    const qy = gsap.quickTo(pv, "y", { duration: 0.5, ease: "power3" });
+    gsap.set(pv, { xPercent: -50, yPercent: -50, scale: 0.94, autoAlpha: 0 });
+    const qx = gsap.quickTo(pv, "x", { duration: 0.5, ease: EASE.follow });
+    const qy = gsap.quickTo(pv, "y", { duration: 0.5, ease: EASE.follow });
+
+    // The motion was always right; the picture arrived late. Assigning
+    // img.src inside mouseenter meant the first hover on every row showed
+    // an empty frame for the length of a network round trip. Warm all five
+    // (~150KB total) the moment the pointer reaches the list — late enough
+    // to cost nothing on load, early enough that no hover ever waits.
+    let warmed = false;
+    list.addEventListener(
+      "pointerenter",
+      () => {
+        if (warmed) return;
+        warmed = true;
+        services.forEach((s) => {
+          if (s.dataset.img) new Image().src = s.dataset.img;
+        });
+      },
+      { once: true, passive: true }
+    );
 
     services.forEach((s) => {
       s.addEventListener("mouseenter", () => {
@@ -80,7 +99,7 @@
         } else {
           pv.classList.remove("has-img");
         }
-        gsap.to(pv, { autoAlpha: 1, scale: 1, duration: 0.3, ease: "power3.out" });
+        gsap.to(pv, { autoAlpha: 1, scale: 1, duration: DUR.pop, ease: EASE.out });
       });
       s.addEventListener(
         "mousemove",
@@ -91,7 +110,7 @@
         { passive: true }
       );
       s.addEventListener("mouseleave", () => {
-        gsap.to(pv, { autoAlpha: 0, scale: 0.8, duration: 0.25, ease: "power3.out" });
+        gsap.to(pv, { autoAlpha: 0, scale: 0.94, duration: DUR.pop, ease: EASE.out });
       });
     });
   }

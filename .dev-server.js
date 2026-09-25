@@ -20,7 +20,11 @@ const types = {
 http
   .createServer((req, res) => {
     let urlPath = decodeURIComponent(req.url.split("?")[0]);
-    if (urlPath === "/") urlPath = "/styleguide.html";
+    // The root serves the SITE. The design-system reference stays reachable
+    // at /styleguide.html — it was the default here, which meant opening
+    // localhost:8777 showed the styleguide and looked like the site had not
+    // changed.
+    if (urlPath === "/") urlPath = "/index.html";
     const filePath = path.join(root, urlPath);
     if (!filePath.startsWith(root)) {
       res.writeHead(403).end("Forbidden");

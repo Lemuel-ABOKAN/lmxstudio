@@ -8,7 +8,9 @@
 (function () {
   "use strict";
 
-  const { $, $$, prefersReducedMotion, isTouch, gsapReady } = window.LMX.utils;
+  const { $, $$, prefersReducedMotion, isTouch, gsapReady, firstVisit } =
+    window.LMX.utils;
+  const { EASE, DUR } = window.LMX.motion;
 
   function initHero() {
     const hero = $("#hero");
@@ -47,8 +49,12 @@
     gsap.set(mark, { autoAlpha: 0, scale: 1.12, xPercent: 5 });
 
     // ---- ENTRANCE TIMELINE ----
+    // The full cinematic is a first-impression animation and is priced as
+    // one: ~1.7s. A visitor already inside the session has seen it, so the
+    // same choreography plays at 2.4x speed — same shapes, no wait. The
+    // delight budget lives at the first-time tier, not on every reload.
     const tl = gsap.timeline({
-      defaults: { ease: "power3.out" },
+      defaults: { ease: EASE.out },
       paused: true,
     });
     tl
@@ -57,22 +63,24 @@
       // 2 · symbol (the ghost mark emerges from depth)
       .to(
         mark,
-        { autoAlpha: 1, scale: 1, xPercent: 0, duration: 1.5, ease: "expo.out" },
+        { autoAlpha: 1, scale: 1, xPercent: 0, duration: 1.5, ease: EASE.emphasis },
         0.05
       )
       .to(eyebrow, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.25)
-      // 3 · headline (masked lines rise)
+      // 3 · headline (masked lines rise) — 80ms apart, top of the band
       .to(
         lines,
-        { yPercent: 0, duration: 1.05, ease: "expo.out", stagger: 0.12 },
+        { yPercent: 0, duration: 1.05, ease: EASE.emphasis, stagger: 0.08 },
         0.35
       )
       // 4 · subtitle
       .to(subtitle, { autoAlpha: 1, y: 0, duration: 0.7 }, 0.8)
       // 5 · navigation
-      .to([...navLinks, navToggle], { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.08 }, 0.9)
+      .to([...navLinks, navToggle], { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.06 }, 0.9)
       // 6 · scroll indicator
       .to(scroll, { autoAlpha: 1, y: 0, duration: 0.6 }, 1.1);
+
+    if (!firstVisit) tl.timeScale(2.4);
 
     // Play once the preloader has lifted.
     if (document.documentElement.classList.contains("is-loaded")) {
@@ -97,15 +105,15 @@
       // Phones: drift only — no scale, blur or fade, which left the
       // headline soft / dimmed on mobile browsers.
       const contentTo = ctx.conditions.desktop
-        ? { yPercent: -14, scale: 0.965, autoAlpha: 0.1, filter: "blur(3px)", ease: "none" }
-        : { yPercent: -14, ease: "none" };
+        ? { yPercent: -14, scale: 0.965, autoAlpha: 0.1, filter: "blur(3px)", ease: EASE.scrub }
+        : { yPercent: -14, ease: EASE.scrub };
 
       const tl = gsap.timeline({
         scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.6 },
       });
       tl.to(content, contentTo, 0)
-        .to(mark, { yPercent: -12, scale: 1.06, ease: "none" }, 0)
-        .to(scroll, { autoAlpha: 0, ease: "none", duration: 0.25 }, 0);
+        .to(mark, { yPercent: -12, scale: 1.06, ease: EASE.scrub }, 0)
+        .to(scroll, { autoAlpha: 0, ease: EASE.scrub, duration: 0.25 }, 0);
     });
   }
 
@@ -113,10 +121,10 @@
   function setupParallax(gsap, content, mark) {
     if (isTouch()) return;
 
-    const markX = gsap.quickTo(mark, "x", { duration: 0.9, ease: "power3" });
-    const markY = gsap.quickTo(mark, "y", { duration: 0.9, ease: "power3" });
-    const conX = gsap.quickTo(content, "x", { duration: 1, ease: "power3" });
-    const conY = gsap.quickTo(content, "y", { duration: 1, ease: "power3" });
+    const markX = gsap.quickTo(mark, "x", { duration: 0.9, ease: EASE.follow });
+    const markY = gsap.quickTo(mark, "y", { duration: 0.9, ease: EASE.follow });
+    const conX = gsap.quickTo(content, "x", { duration: 1, ease: EASE.follow });
+    const conY = gsap.quickTo(content, "y", { duration: 1, ease: EASE.follow });
 
     window.addEventListener(
       "pointermove",
@@ -156,8 +164,8 @@
         gsap.to(lines, {
           yPercent: 0,
           duration: 1,
-          ease: "expo.out",
-          stagger: 0.12,
+          ease: EASE.emphasis,
+          stagger: 0.06,
         }),
     });
 
@@ -167,7 +175,7 @@
       { color: "#3f3f3f" },
       {
         color: "#f5f5f5",
-        ease: "none",
+        ease: EASE.scrub,
         scrollTrigger: {
           trigger: ".about__statement",
           start: "top 72%",
@@ -183,7 +191,7 @@
       {
         scale: 1.03,
         autoAlpha: 1,
-        ease: "none",
+        ease: EASE.scrub,
         scrollTrigger: {
           trigger: ".about__statement",
           start: "top 72%",
@@ -208,7 +216,7 @@
           gsap.to(obj, {
             v: target,
             duration: 1.2,
-            ease: "power2.out",
+            ease: EASE.out,
             onUpdate: () => {
               el.textContent = prefix + Math.round(obj.v) + suffix;
             },
@@ -222,8 +230,8 @@
       autoAlpha: 0,
       y: 26,
       duration: 0.7,
-      ease: "power3.out",
-      stagger: 0.08,
+      ease: EASE.out,
+      stagger: 0.06,
       scrollTrigger: { trigger: ".about__values", start: "top 80%", once: true },
     });
 
@@ -235,7 +243,7 @@
         { yPercent: -6, scale: 1.08 },
         {
           yPercent: 6,
-          ease: "none",
+          ease: EASE.scrub,
           scrollTrigger: {
             trigger: ".about__portrait",
             start: "top bottom",

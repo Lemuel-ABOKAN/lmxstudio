@@ -2,14 +2,24 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- viewport-fit=cover lets the page paint under the notch / home indicator
+       (env(safe-area-inset-*) is 0px without it). interactive-widget makes the
+       Android keyboard shrink the layout viewport the way iOS already does.
+       Zoom is never disabled. -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
 
   <!-- SEO -->
   <title>LMX Studio | Agence web à Abidjan</title>
   <meta
     name="description"
     content="LMX Studio est une agence web à Abidjan fondée par Lemuel Abokan : UX/UI design, front-end, back-end. 4 projets livrés depuis 2026." />
+  <!-- The site has a single dark identity, so one theme-color is the honest
+       answer: it matches the very top of the page, not the brand accent.
+       color-scheme tells the UA to render scrollbars and form chrome dark. -->
   <meta name="theme-color" content="#050505" />
+  <meta name="color-scheme" content="dark" />
   <link rel="canonical" href="https://lmxstudio.africa/" />
 
   <!-- Open Graph -->
@@ -45,6 +55,27 @@
   <style>
     :root { --font-display: "Bricolage Grotesque", system-ui, sans-serif; }
   </style>
+
+  <!-- Runs before first paint, and does two things.
+       1 · Claims the preloader for JS. If this never runs (JS off, parse
+           error, blocked bundle), css/style.css keeps #preloader hidden so
+           the black overlay can never sit on top of a readable page.
+       2 · Marks a returning visitor. The delight budget belongs to the
+           FIRST time: paying 2.3s of choreography on every reload — the
+           client coming back to compare three agencies — spends it at the
+           wrong tier. Deciding here rather than in main.js means the
+           loader never paints at all on a repeat visit. -->
+  <script>
+    (function () {
+      var h = document.documentElement;
+      h.classList.add("js");
+      try {
+        if (sessionStorage.getItem("lmx:seen")) h.classList.add("seen");
+      } catch (e) {
+        /* private mode / blocked storage: treat as a first visit */
+      }
+    })();
+  </script>
 
   <!-- No-JS: never trap the page behind the loader -->
   <noscript>
@@ -474,7 +505,8 @@
         </a>
         <div class="contact__cta-row">
           <a class="wa-btn" href="https://wa.me/2250140793012" target="_blank"
-            rel="noopener" aria-label="Discuter sur WhatsApp">
+            rel="noopener" aria-label="Discuter sur WhatsApp"
+            data-magnetic="0.22">
             <svg class="wa-btn__icon" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.55 4.06 1.6 5.82L2 22l4.42-1.16a9.9 9.9 0 0 0 4.62 1.18h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.86 9.86 0 0 0 12.04 2Zm5.8 14.06c-.25.69-1.45 1.32-1.99 1.36-.53.05-1.03.24-3.47-.72-2.93-1.15-4.79-4.17-4.93-4.36-.14-.19-1.18-1.57-1.18-2.99 0-1.42.75-2.12 1.01-2.41.26-.29.57-.36.76-.36h.55c.18 0 .42-.03.64.49.25.6.85 2.07.92 2.22.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.28.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.08.18-.28.37-.23.62-.14.25.09 1.6.75 1.87.89.28.14.46.21.53.32.07.11.07.66-.18 1.35Z"/>
             </svg>

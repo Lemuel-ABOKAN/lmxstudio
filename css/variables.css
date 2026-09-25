@@ -35,7 +35,11 @@
 
   --text: var(--c-white);
   --text-muted: var(--c-silver);
-  --text-faint: rgba(var(--rgb-silver), 0.45);
+  /* 0.45 measured 3.44:1 on --c-black and failed WCAG AA (4.5:1) across the
+     18 places it is used. 0.55 is the lowest alpha that clears it — 4.69:1 —
+     so the third type tier stays visibly quieter than --text-muted while
+     remaining readable. Do not lower it without re-measuring. */
+  --text-faint: rgba(var(--rgb-silver), 0.55);
   --text-inverse: var(--c-black);
 
   --accent: var(--c-gold);
@@ -230,18 +234,32 @@
      13 · MOTION — durations & easings
      Cinematic, weighted. transform/opacity only.
      -------------------------------------------------------- */
-  --dur-instant: 0.12s;
+  /* --- Interaction budgets ---
+     Duration follows FREQUENCY, not taste: the more often a user sees a
+     motion, the shorter it must be. UI motion never exceeds 300ms; only
+     the once-per-visit editorial reveals are allowed to be cinematic. */
+  --dur-press: 0.14s;    /* press feedback        · every interaction  */
+  --dur-hover: 0.18s;    /* hover, underlines     · tens of times/day  */
+  --dur-pop: 0.2s;       /* tooltips, previews    · occasional         */
+  --dur-menu: 0.32s;     /* fullscreen menu, drawers — OPENING         */
+  --dur-menu-out: 0.2s;  /* …and closing. Asymmetric on purpose: slow
+                            where the user is deciding, snappy where the
+                            system is answering.                       */
+
+  /* Legacy scale — editorial / scroll-bound motion only.
+     Do NOT use these on hover or press: they blow the budget above. */
   --dur-fast: 0.24s;
   --dur-base: 0.4s;
   --dur-slow: 0.7s;
-  --dur-slower: 1.1s;
   --dur-reveal: 1.4s;    /* signature reveals                        */
 
-  /* Easings — expressive but disciplined */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);        /* smooth exit  */
-  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);     /* editorial    */
-  --ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);    /* reveal snap  */
-  --ease-metal: cubic-bezier(0.65, 0.05, 0.36, 1);   /* weighted     */
+  /* Easings — the built-in CSS curves are too weak to read as intentional.
+     ease-in is never used on UI: it delays the exact moment the eye is
+     watching, which reads as lag even at an identical duration. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);        /* entrances, exits, hover */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);    /* on-screen movement      */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);     /* sheets & fullscreen menu*/
+  --ease-emphasis: cubic-bezier(0.16, 1, 0.3, 1);    /* editorial reveal snap   */
 
   /* --------------------------------------------------------
      14 · UI TOKENS — cursor, focus, controls

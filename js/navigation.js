@@ -2,13 +2,15 @@
    LMX STUDIO — NAVIGATION
    1) Fixed header: backdrop + condense on scroll, hide on
       scroll-down / reveal on scroll-up.
-   2) Mobile fullscreen menu with a GSAP open/close sequence:
-      button → background → lines → links → secondary info.
+   2) Mobile fullscreen menu — state, focus and ARIA only; the
+      open/close choreography is CSS (see style.css).
+   3) Anchor scrolling, distance-capped.
+   4) Active section — the "where am I?" answer.
    ============================================================ */
 (function () {
   "use strict";
 
-  const { $, $$, prefersReducedMotion, gsapReady } = window.LMX.utils;
+  const { $, $$, prefersReducedMotion } = window.LMX.utils;
 
   /* ---------- 1 · HEADER SCROLL BEHAVIOUR ---------- */
   (function header() {
@@ -49,46 +51,19 @@
     const menuEl = $("#menu");
     if (!toggle || !menuEl) return;
 
-    const bg = $(".menu__bg", menuEl);
-    const glyph = $(".nav-toggle__glyph", toggle);
     const label = $(".nav-toggle__label", toggle);
-    const rules = $$(".menu__rule", menuEl);
-    const labels = $$(".menu__label > span", menuEl);
-    const indexes = $$(".menu__index", menuEl);
-    const footer = $(".menu__footer", menuEl);
     const links = $$(".menu__link", menuEl);
 
     let isOpen = false;
     let lastFocus = null;
-    const canAnimate = gsapReady() && !prefersReducedMotion();
-    const gsap = window.gsap;
+    let closeTimer = null;
 
-    let tl = null;
-    if (canAnimate) {
-      gsap.set(bg, { scaleY: 0 });
-      gsap.set(rules, { scaleX: 0 });
-      gsap.set(labels, { yPercent: 110 });
-      gsap.set(indexes, { autoAlpha: 0 });
-      gsap.set(footer, { autoAlpha: 0, y: 20 });
-
-      tl = gsap.timeline({
-        paused: true,
-        defaults: { ease: "power3.out" },
-        onReverseComplete: finishClose,
-      });
-      tl
-        // 1 · button (plus → cross)
-        .to(glyph, { rotate: 45, duration: 0.4, ease: "power2.inOut" }, 0)
-        // 2 · background curtain
-        .to(bg, { scaleY: 1, duration: 0.6, ease: "power4.inOut" }, 0.05)
-        // 3 · lines draw in
-        .to(rules, { scaleX: 1, duration: 0.5, stagger: 0.06 }, 0.35)
-        // 4 · links rise
-        .to(labels, { yPercent: 0, duration: 0.6, stagger: 0.07, ease: "expo.out" }, 0.45)
-        .to(indexes, { autoAlpha: 1, duration: 0.4, stagger: 0.07 }, 0.5)
-        // 5 · secondary info
-        .to(footer, { autoAlpha: 1, y: 0, duration: 0.5 }, 0.78);
-    }
+    /* The open/close choreography is pure CSS (see "MOBILE FULLSCREEN MENU"
+       in style.css). It is a class toggle, which is the cheapest tool that
+       works — and CSS transitions run off the main thread, so the menu stays
+       smooth while the page is still loading and keeps working even if the
+       GSAP CDN never answers. JS owns state, focus and ARIA only. */
+    const EXIT_MS = 340; // must match the .menu visibility transition delay
 
     function setState(open) {
       isOpen = open;
@@ -102,31 +77,28 @@
 
     function open() {
       if (isOpen) return;
+      window.clearTimeout(closeTimer);
       lastFocus = document.activeElement;
       menuEl.classList.add("is-open");
       setState(true);
-      if (canAnimate) {
-        tl.eventCallback("onComplete", () => links[0] && links[0].focus());
-        tl.play();
-      } else {
-        links[0] && links[0].focus();
-      }
+      // Focus the first link immediately — never make a keyboard user wait
+      // out an animation to reach the navigation.
+      links[0] && links[0].focus();
     }
 
     function close() {
       if (!isOpen) return;
       setState(false);
-      if (canAnimate) {
-        tl.reverse();
-      } else {
-        finishClose();
-      }
+      // Keep .is-open through the exit transitions, then drop it. Reopening
+      // mid-exit cancels this, and the CSS transitions retarget from wherever
+      // they are — no restart from zero.
+      window.clearTimeout(closeTimer);
+      closeTimer = window.setTimeout(finishClose, EXIT_MS);
+      if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
     }
 
-    // Called when the close animation (or instant close) has finished.
     function finishClose() {
       menuEl.classList.remove("is-open");
-      if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
     }
 
     toggle.addEventListener("click", () => (isOpen ? close() : open()));
@@ -157,10 +129,127 @@
     // Safety: if resized up to desktop while open, close instantly
     window.matchMedia("(min-width: 768px)").addEventListener("change", (m) => {
       if (m.matches && isOpen) {
-        if (canAnimate) tl.progress(0).pause();
+        window.clearTimeout(closeTimer);
         setState(false);
         finishClose();
       }
     });
+  })();
+
+  /* ---------- 3 · ANCHOR SCROLLING, DISTANCE-CAPPED ----------
+     The document is ~18 screens tall. `scroll-behavior: smooth` in CSS
+     applies the same easing whatever the distance, so clicking "Accueil"
+     in the footer smooth-scrolled the visitor through the entire page —
+     eighteen screens of blur that cannot be cancelled. Smooth motion is
+     supposed to preserve orientation; past a few screens it destroys it.
+
+     So: smooth for a neighbourly hop, instant for a jump. The threshold is
+     the one place a number is worth stating — 3 viewports is roughly where
+     a scroll stops reading as "this moved" and starts reading as "where am
+     I now". CSS cannot branch on distance, which is why this is JS. */
+  (function anchors() {
+    const MAX_SMOOTH_SCREENS = 3;
+
+    document.addEventListener("click", (e) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey) return;
+      const link = e.target.closest('a[href^="#"]');
+      if (!link) return;
+
+      const id = link.getAttribute("href");
+      if (!id || id === "#") return;
+      const target = document.querySelector(id);
+      if (!target) return;
+
+      e.preventDefault();
+      const distance = Math.abs(target.getBoundingClientRect().top);
+      const smooth =
+        !prefersReducedMotion() &&
+        distance < window.innerHeight * MAX_SMOOTH_SCREENS;
+
+      target.scrollIntoView({
+        behavior: smooth ? "smooth" : "instant",
+        block: "start",
+      });
+      // Keep the URL and the focus ring honest — scrollIntoView alone
+      // moves the viewport without telling assistive tech anything.
+      history.replaceState(null, "", id);
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    });
+  })();
+
+  /* ---------- 4 · ACTIVE SECTION ----------
+     "Where am I?" is the first question every screen has to answer, and on
+     a 7-section one-pager nothing answered it.
+
+     A section is current when it owns the MIDDLE of the viewport — that is
+     where the eye is, not the top edge. The indicator reuses the underline
+     the nav links already have and rides --dur-hover (180ms): it is seen
+     continuously while scrolling, so it must be felt, never watched. */
+  (function activeSection() {
+    const links = $$('.nav__link[href^="#"], .menu__link[href^="#"]');
+    if (!links.length) return;
+
+    const byId = new Map();
+    links.forEach((a) => {
+      const id = a.getAttribute("href").slice(1);
+      if (!byId.has(id)) byId.set(id, []);
+      byId.get(id).push(a);
+    });
+
+    const sections = [...byId.keys()]
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    if (!sections.length) return;
+
+    let currentId = null;
+
+    function setCurrent(id) {
+      if (id === currentId) return;
+      currentId = id;
+      links.forEach((a) => {
+        if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "true");
+        else a.removeAttribute("aria-current");
+      });
+    }
+
+    function update() {
+      const mid = window.innerHeight / 2;
+      let found = null;
+      for (const s of sections) {
+        const r = s.getBoundingClientRect();
+        // Several sections can straddle the middle; the first one that
+        // owns it wins, so the indicator never flickers between two.
+        if (r.top <= mid && r.bottom > mid) {
+          found = s;
+          break;
+        }
+      }
+      if (found) setCurrent(found.id);
+    }
+
+    // Driven by scroll, not by IntersectionObserver. IO is cheaper in
+    // principle, but it only ever tells you when a threshold is CROSSED:
+    // it delivers nothing before its first callback, nothing while the
+    // page is hidden, and nothing on a resize that moves the sections
+    // under a stationary scroll position. Each of those leaves the
+    // indicator stale or blank. One rAF-throttled passive listener — the
+    // same pattern the header above already uses — is deterministic, and
+    // setCurrent() early-returns when nothing changed, so the cost is a
+    // handful of getBoundingClientRect calls per frame of actual scrolling.
+    let ticking = false;
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        update();
+        ticking = false;
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("pageshow", update);
+    update(); // first paint and deep links, without waiting on anything
   })();
 })();

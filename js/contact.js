@@ -7,6 +7,7 @@
   "use strict";
 
   const { $, $$, isTouch, prefersReducedMotion, gsapReady } = window.LMX.utils;
+  const { EASE, DUR } = window.LMX.motion;
 
   function init() {
     const section = $("#contact");
@@ -36,8 +37,8 @@
         autoAlpha: 0,
         y: 28,
         duration: 0.9,
-        ease: "power3.out",
-        stagger: 0.1,
+        ease: EASE.out,
+        stagger: 0.06,
         scrollTrigger: { trigger: section, start: "top 65%", once: true },
       }
     );
@@ -55,8 +56,8 @@
           autoAlpha: 0,
           y: 30,
           duration: 0.8,
-          ease: "power3.out",
-          stagger: 0.1,
+          ease: EASE.out,
+          stagger: 0.06,
           scrollTrigger: { trigger: footer, start: "top 90%", once: true },
         }
       );

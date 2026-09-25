@@ -8,37 +8,55 @@
 (function () {
   "use strict";
 
-  const { $, prefersReducedMotion, gsapReady, lockScroll, unlockScroll, onReady } =
-    window.LMX.utils;
+  const {
+    $,
+    prefersReducedMotion,
+    gsapReady,
+    lockScroll,
+    unlockScroll,
+    onReady,
+    firstVisit,
+    markSeen,
+  } = window.LMX.utils;
+  const { EASE, DUR } = window.LMX.motion;
 
   const MIN_DISPLAY = 600; // ms — floor so the intro reads, never drags
+  const HARD_LIMIT = 3500; // ms — absolute ceiling from boot; see watchdog below
   const startedAt = performance.now();
 
-  /* Signal the rest of the app (Hero / ÉTAPE 03) that we're in. */
-  function announceLoaded() {
+  /* The loader is lifted exactly once, whatever path gets us there:
+     the cinematic outro, the CSS fallback, or the watchdog. */
+  let finished = false;
+
+  function finish(preloader) {
+    if (finished) return;
+    finished = true;
+    if (preloader) preloader.hidden = true;
+    unlockScroll();
+    markSeen();
     document.documentElement.classList.add("is-loaded");
     document.dispatchEvent(new CustomEvent("lmx:loaded"));
+  }
+
+  /* WATCHDOG — the loader can never trap the site.
+     The whole intro is GSAP, i.e. requestAnimationFrame: browsers throttle
+     rAF in background tabs, so a page opened with ⌘-click would sit on a
+     frozen logo with the scroll locked until the user focuses it. setTimeout
+     keeps firing in background tabs, so this is the one guarantee that holds
+     no matter what GSAP, the network or the CDN are doing. */
+  function armWatchdog(preloader) {
+    window.setTimeout(() => finish(preloader), HARD_LIMIT);
   }
 
   /* Hard fallback: remove the loader with a plain CSS fade.
      Used when GSAP is unavailable so the site is never trapped. */
   function fallbackHide(preloader) {
     preloader.classList.add("is-hidden");
-    preloader.addEventListener(
-      "transitionend",
-      () => {
-        preloader.hidden = true;
-        unlockScroll();
-        announceLoaded();
-      },
-      { once: true }
-    );
+    preloader.addEventListener("transitionend", () => finish(preloader), {
+      once: true,
+    });
     // Safety net if transitionend never fires
-    window.setTimeout(() => {
-      preloader.hidden = true;
-      unlockScroll();
-      announceLoaded();
-    }, 600);
+    window.setTimeout(() => finish(preloader), 600);
   }
 
   /* Reduced motion: no choreography — reveal the mark, then lift. */
@@ -50,11 +68,7 @@
     onReady(() => {
       window.setTimeout(() => {
         preloader.classList.add("is-hidden");
-        window.setTimeout(() => {
-          preloader.hidden = true;
-          unlockScroll();
-          announceLoaded();
-        }, 200);
+        window.setTimeout(() => finish(preloader), 200);
       }, 150);
     });
   }
@@ -80,26 +94,26 @@
     };
 
     // INTRO — apparition + montée de luminosité + révélation
-    const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const intro = gsap.timeline({ defaults: { ease: EASE.out } });
     intro
       .to(logo, {
         autoAlpha: 1,
         scale: 1,
         filter: "brightness(1) contrast(1.05)",
         duration: 0.7,
-        ease: "expo.out",
+        ease: EASE.emphasis,
       })
       .to(
         progress,
-        { v: 92, duration: 0.9, ease: "power2.out", onUpdate: setCount },
+        { v: 92, duration: 0.9, ease: EASE.out, onUpdate: setCount },
         0
       )
-      .to(bar, { scaleX: 0.92, duration: 0.9, ease: "power2.out" }, 0)
+      .to(bar, { scaleX: 0.92, duration: 0.9, ease: EASE.out }, 0)
       // gold edge of light sweeping across the mark
       .fromTo(
         sweep,
         { xPercent: -60, autoAlpha: 0 },
-        { xPercent: 160, autoAlpha: 1, duration: 0.75, ease: "power2.inOut" },
+        { xPercent: 160, autoAlpha: 1, duration: 0.75, ease: EASE.inOut },
         0.25
       )
       .to(sweep, { autoAlpha: 0, duration: 0.25 }, ">-0.15");
@@ -107,17 +121,13 @@
     // OUTRO — completion + fluid handoff to the Hero
     function playOutro() {
       const outro = gsap.timeline({
-        defaults: { ease: "power3.inOut" },
-        onComplete: () => {
-          preloader.hidden = true;
-          unlockScroll();
-          announceLoaded();
-        },
+        defaults: { ease: EASE.inOut },
+        onComplete: () => finish(preloader),
       });
       outro
         .to(progress, { v: 100, duration: 0.25, onUpdate: setCount })
         .to(bar, { scaleX: 1, duration: 0.25 }, 0)
-        .to(logo, { scale: 1.02, duration: 0.5, ease: "power2.in" }, 0.05)
+        .to(logo, { scale: 1.02, duration: 0.5, ease: EASE.out }, 0.05)
         .to([bar, count], { autoAlpha: 0, duration: 0.3 }, 0.15)
         .to(
           logo,
@@ -130,6 +140,12 @@
     // Gate the outro on real load, but honour the minimum display floor,
     // so the preloader is quick yet never cut mid-reveal.
     onReady(() => {
+      // Nobody is watching a background tab: skip the choreography rather
+      // than queue a timeline rAF will not run.
+      if (document.hidden) {
+        finish(preloader);
+        return;
+      }
       const elapsed = performance.now() - startedAt;
       const wait = Math.max(0, MIN_DISPLAY - elapsed);
       window.setTimeout(playOutro, wait);
@@ -139,12 +155,20 @@
   function init() {
     const preloader = $("#preloader");
     if (!preloader) {
-      unlockScroll();
-      announceLoaded();
+      finish(null);
+      return;
+    }
+
+    // Returning within the session: CSS already kept the loader off the
+    // screen, so there is nothing to choreograph. Hand straight over to the
+    // hero, which plays its own shortened entrance.
+    if (!firstVisit) {
+      finish(preloader);
       return;
     }
 
     lockScroll();
+    armWatchdog(preloader);
 
     if (prefersReducedMotion()) {
       reducedMotion(preloader);

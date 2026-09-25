@@ -3,7 +3,7 @@
 Site vitrine premium d'un **Creative Developer** (Designer & Développeur web).
 100 % frontend — aucun PHP, base de données, backend ou authentification.
 
-**Stack :** HTML5 · CSS3 · JavaScript ES6+ · GSAP · ScrollTrigger · SVG (Three.js seulement si réellement nécessaire).
+**Stack :** HTML5 · CSS3 · JavaScript ES6+ · GSAP · ScrollTrigger · SVG.
 
 ---
 
@@ -19,17 +19,19 @@ hiérarchie ou la navigation — jamais la décoration.
 
 ---
 
-## État du projet — ÉTAPE 01 : Design System ✅
+## État du projet
 
-Les fondations visuelles sont posées. **Aucune section du site n'est encore construite.**
+Le site est **construit et complet** : preloader, header, menu plein écran, hero,
+projets, agence, services, stack technique, process, contact et footer.
 
-Pour prévisualiser le design system :
+Prévisualiser en local :
 
 ```bash
 node .dev-server.js
 ```
 
-Puis ouvrir <http://localhost:8777/styleguide.html> (page de référence, `noindex`).
+- Site : <http://localhost:8777/index.html>
+- Référence du design system : <http://localhost:8777/styleguide.html> (`noindex`)
 
 ---
 
@@ -37,22 +39,23 @@ Puis ouvrir <http://localhost:8777/styleguide.html> (page de référence, `noind
 
 ```
 /
-├── index.html            (à venir)
+├── index.html            le site
 ├── styleguide.html       référence du design system (non indexée)
 ├── css/
-│   ├── reset.css         reset moderne, terrain neutre
+│   ├── reset.css         reset moderne + baseline tactile
 │   ├── variables.css     ★ tous les design tokens
-│   ├── style.css         base, typo, boutons, liens, grille, surfaces
+│   ├── style.css         base, composants et sections
 │   ├── responsive.css    contrat de breakpoints (mobile ≠ desktop réduit)
 │   └── animations.css    keyframes, primitives de reveal, reduced-motion
-├── js/                   (modules ES6 à venir : main, animations, cursor,
-│                          navigation, projects, utils)
-├── assets/
-│   ├── images/
-│   │   ├── lmx-logo.png
-│   │   └── about/        portrait-ambient.jpg · portrait-cutout.jpg
-│   ├── icons/
-│   └── fonts/            (Clash Display + Inter self-hosted à venir)
+├── js/
+│   ├── utils.js          helpers + ★ vocabulaire de motion partagé (EASE / DUR)
+│   ├── main.js           orchestrateur de boot + preloader (avec watchdog)
+│   ├── navigation.js     header au scroll + état du menu (l'animation est en CSS)
+│   ├── animations.js     hero + agence (GSAP / ScrollTrigger)
+│   ├── cursor.js         curseur custom (pointeur fin uniquement)
+│   ├── interactions.js   barre de progression + éléments magnétiques
+│   └── projects.js · services.js · stack.js · process.js · contact.js
+├── assets/images/        webp uniquement — les masters lourds ne sont pas versionnés
 └── README.md
 ```
 
@@ -71,7 +74,7 @@ Puis ouvrir <http://localhost:8777/styleguide.html> (page de référence, `noind
 | **Profondeur** | ombres = obscurité + rim métallique (pas de drop-shadow gris) |
 | **Lumière** | `--glow-gold-*`, ligne de lumière signature, wash ambiant |
 | **Z-index** | échelle nommée, zéro magic number |
-| **Motion** | durées + easings cinématiques (`transform`/`opacity` uniquement) |
+| **Motion** | budgets par fréquence (`--dur-press/hover/pop/menu`) + easings (`--ease-*`) |
 | **UI** | curseur custom, focus, hauteurs de contrôles, tap targets 44px |
 
 ### Palette
@@ -85,19 +88,50 @@ Puis ouvrir <http://localhost:8777/styleguide.html> (page de référence, `noind
 | `--c-white` | `#F5F5F5` | titres, texte principal |
 | `--c-gold` | `#C99A4A` | **accent unique** (lumière, jamais un aplat) |
 
----
-
-## Principes tenus dès les fondations
-
-- **Responsive** : mobile n'est pas un desktop réduit — la grille passe de 12 → 8 → 4 colonnes, l'échelle typo se recalibre, hover-only neutralisé au tactile.
-- **Performance** : uniquement `transform` / `opacity` animés ; `will-change` ciblé.
-- **Accessibilité** : `:focus-visible` avec anneau doré, skip-link, `.visually-hidden`, cibles 44px, contrastes AA.
-- **Motion** : `prefers-reduced-motion` ramène chaque animation à son état final lisible.
+`--text-faint` est à `rgba(silver, 0.55)` = **4,69:1** sur `--c-black`. C'est le
+minimum qui passe WCAG AA. Ne pas le baisser sans remesurer.
 
 ---
 
-## Prochaines étapes (en attente de validation)
+## Règles tenues
 
-- ÉTAPE 02 — structure HTML sémantique + head SEO/OG + intégration fonts self-hosted
-- ÉTAPE 03 — Hero « révélation métal »
-- puis navigation, curseur, sections Work / Approche / About / Contact, GSAP timelines.
+**Motion — un seul vocabulaire.** Les courbes et durées existent en double, dans
+`css/variables.css` (`--ease-*`, `--dur-*`) et dans `js/utils.js`
+(`LMX.motion`), avec les paires documentées. Ne jamais écrire un cubic-bezier ni
+un `"power3.out"` en dur : étendre les tokens.
+
+**La durée suit la fréquence.** `--dur-press` (140ms) pour un appui,
+`--dur-hover` (180ms) pour ce qui est vu des dizaines de fois par jour,
+`--dur-menu` (320ms) pour un panneau occasionnel. Aucune animation d'UI ne
+dépasse 300ms ; seules les révélations éditoriales vues une fois par visite ont
+le droit d'être cinématiques.
+
+**`ease-in` est proscrit sur l'UI.** Il retarde les premières frames, exactement
+là où l'œil regarde : à durée égale, ça se ressent comme de la latence.
+
+**Tout `:hover` vit derrière `@media (hover: hover) and (pointer: fine)`.** Le
+tactile simule un hover au tap et le laisse collé. Le pendant obligatoire est un
+`:active` : `reset.css` supprime le tap-highlight du navigateur, donc sans
+`:active` un doigt n'a plus aucun retour du tout.
+
+**Le site ne doit jamais dépendre de GSAP pour fonctionner.** Le preloader a un
+watchdog `setTimeout` (rAF est throttlé dans un onglet d'arrière-plan) et le menu
+mobile s'ouvre entièrement en CSS. GSAP n'ajoute que la couche cinématique.
+
+**`prefers-reduced-motion` réduit, il ne supprime pas.** Les transitions de
+mouvement sautent ; celles d'opacité et de couleur restent, plafonnées à 120ms,
+parce que ce sont elles qui disent à l'utilisateur que l'interface a réagi.
+
+**`will-change` seulement là où quelque chose bouge en continu** (parallaxe,
+curseur). Une couche promue en permanence rasterise le texte en bitmap sur
+mobile.
+
+---
+
+## Vérifier avant de livrer
+
+- Ouvrir le site dans un **onglet d'arrière-plan** (⌘-clic) puis y revenir : le
+  preloader doit déjà être parti et le scroll débloqué.
+- Bloquer le CDN GSAP dans les devtools : le menu mobile doit rester ouvrable.
+- Tester sur un **vrai téléphone**, pas en émulation. Le hover collé, le délai de
+  tap, le rebond de scroll et les safe areas ne se reproduisent pas autrement.

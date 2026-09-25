@@ -7,6 +7,7 @@
   "use strict";
 
   const { $, $$, prefersReducedMotion, gsapReady } = window.LMX.utils;
+  const { EASE, DUR } = window.LMX.motion;
 
   function init() {
     const section = $("#process");
@@ -58,7 +59,7 @@
       { scaleY: 0 },
       {
         scaleY: 1,
-        ease: "none",
+        ease: EASE.scrub,
         scrollTrigger: {
           trigger: $(".process__steps", section),
           start: "top center",
@@ -77,7 +78,7 @@
       gsap.fromTo(
         count,
         { yPercent: 45, autoAlpha: 0.3 },
-        { yPercent: 0, autoAlpha: 1, duration: 0.4, ease: "power3.out" }
+        { yPercent: 0, autoAlpha: 1, duration: 0.4, ease: EASE.out }
       );
     }
 

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Prototype — Services · LMX Studio</title>
+<meta name="robots" content="noindex" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<!-- Real tokens + real base, so every variant could ship tomorrow -->
+<link rel="stylesheet" href="../css/reset.css" />
+<link rel="stylesheet" href="../css/variables.css" />
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="../css/responsive.css" />
+<style>:root { --font-display: "Bricolage Grotesque", system-ui, sans-serif; }</style>
+
+<style>
+/* ============================================================
+   PROTOTYPE SURFACE — nothing here ships. Production code never
+   imports from this file.
+   ============================================================ */
+body { background: var(--bg); }
+.proto-note {
+  padding: var(--space-md) var(--gutter-x) 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--ls-wide);
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+/* Realistic neighbours: the section never renders in a vacuum */
+.proto-before, .proto-after {
+  padding-block: var(--section-py);
+  border-block: var(--border-hairline);
+  opacity: 0.35;
+}
+.proto-before h2, .proto-after h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  line-height: 0.98;
+  letter-spacing: var(--ls-display);
+}
+
+/* ============================================================
+   SHARED — the section chrome all three variants sit in
+   ============================================================ */
+.sv { padding-block: var(--section-py); }
+.sv__head { margin-bottom: clamp(var(--space-xl), 4vw, var(--space-3xl)); }
+.sv__eyebrow { margin-bottom: var(--space-md); }
+.sv__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  line-height: 0.98;
+  letter-spacing: var(--ls-display);
+}
+.sv__title span { display: block; }
+
+/* Entrance: one stagger recipe shared by all three, so the picker
+   compares the DESIGN and not three different entrances.
+   30–80ms between items; transform + opacity only; ease-out. */
+@keyframes sv-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sv [data-in] {
+  opacity: 0;
+  animation: sv-in var(--dur-menu) var(--ease-out) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sv [data-in] { animation: none; opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   VARIANT 1 — COLONNE
+   Axis: LAYOUT. Keeps the monumental outline type, but stops the
+   name and the description fighting for the same row: the name
+   owns row 1, the description sits underneath and is ALWAYS
+   visible. No hover dependency at all, so desktop and touch are
+   the same design rather than two.
+   ============================================================ */
+.v1 { list-style: none; border-top: var(--border-hairline); }
+.v1__row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: clamp(var(--space-md), 3vw, var(--space-2xl));
+  row-gap: var(--space-xs);
+  padding-block: clamp(var(--space-md), 2.4vw, var(--space-xl));
+  border-bottom: var(--border-hairline);
+}
+.v1__num {
+  grid-row: 1;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-small);
+  letter-spacing: var(--ls-wide);
+  color: var(--accent);
+  padding-top: 0.35em;
+}
+.v1__name {
+  grid-column: 2;
+  font-family: var(--font-display);
+  /* No nowrap: the name is allowed to wrap, so nothing can ever be
+     clipped by the gutter. Balance keeps two-line names even. */
+  font-size: clamp(1.75rem, 0.8rem + 4vw, 4.5rem);
+  font-weight: var(--fw-semibold);
+  line-height: 0.98;
+  letter-spacing: var(--ls-heading);
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(var(--rgb-silver), 0.55);
+  transition:
+    color var(--dur-hover) var(--ease-out),
+    -webkit-text-stroke-color var(--dur-hover) var(--ease-out);
+}
+.v1__desc {
+  grid-column: 2;
+  max-width: 52ch;
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  color: var(--text-muted);
+}
+@media (hover: hover) and (pointer: fine) {
+  .v1__row:hover .v1__name,
+  .v1__row:focus-within .v1__name {
+    color: var(--text);
+    -webkit-text-stroke-color: transparent;
+  }
+}
+/* Touch has no hover, so the outline would never fill. Fill it. */
+@media (hover: none), (pointer: coarse) {
+  .v1__name { color: var(--text); -webkit-text-stroke-color: transparent; }
+}
+
+/* ============================================================
+   VARIANT 2 — ACCORDÉON
+   Axis: INTERACTION MODEL. One row open at a time, opened by a
+   real click on a real <button>. The same model on every pointer
+   type — it deletes the scroll-position hack that stands in for
+   hover on touch today. Uses <details>-style height animation,
+   the one place height is sanctioned.
+   ============================================================ */
+.v2 { list-style: none; border-top: var(--border-hairline); }
+.v2__item { border-bottom: var(--border-hairline); }
+.v2__btn {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(var(--space-md), 3vw, var(--space-2xl));
+  width: 100%;
+  padding-block: clamp(var(--space-md), 2.2vw, var(--space-lg));
+  text-align: left;
+  color: inherit;
+  transition: opacity var(--dur-press) var(--ease-out);
+}
+.v2__btn:active { opacity: 0.6; }
+.v2__num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-small);
+  letter-spacing: var(--ls-wide);
+  color: var(--accent);
+}
+.v2__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 0.8rem + 3.4vw, 3.5rem);
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+  letter-spacing: var(--ls-heading);
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--text-muted);
+  transition: color var(--dur-hover) var(--ease-out);
+}
+.v2__item[data-open] .v2__name { color: var(--text); }
+.v2__sign {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.v2__sign::before,
+.v2__sign::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 1.5px;
+  background: var(--accent);
+  transition: transform var(--dur-pop) var(--ease-out);
+}
+.v2__sign::after { rotate: 90deg; }
+/* "+" becomes "−": the vertical bar collapses. Origin is the
+   centre, so it reads as one mark changing, not two bars moving. */
+.v2__item[data-open] .v2__sign::after { transform: scaleX(0); }
+.v2__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-menu) var(--ease-out);
+}
+.v2__item[data-open] .v2__panel { grid-template-rows: 1fr; }
+.v2__panel > div { overflow: hidden; }
+.v2__desc {
+  max-width: 56ch;
+  padding-bottom: var(--space-lg);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity var(--dur-hover) var(--ease-out);
+}
+.v2__item[data-open] .v2__desc { opacity: 1; transition-delay: 80ms; }
+@media (hover: hover) and (pointer: fine) {
+  .v2__btn:hover .v2__name { color: var(--text); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2__panel { transition: none; }
+}
+
+/* ============================================================
+   VARIANT 3 — FICHE
+   Axis: FORM / DENSITY. Drops the row list for cards. Everything
+   is visible at once, nothing is nowrap, nothing needs a pointer.
+   The type comes down from monumental to readable — that is the
+   trade the picker exists to judge.
+   ============================================================ */
+.v3 {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(240px, 26vw, 300px), 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: var(--border-hairline);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.v3__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: clamp(var(--space-md), 2.4vw, var(--space-xl));
+  background: var(--bg);
+  transition: background-color var(--dur-hover) var(--ease-out);
+}
+.v3__num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-micro);
+  letter-spacing: var(--ls-wide);
+  color: var(--accent);
+}
+.v3__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 0.9rem + 1.1vw, 1.75rem);
+  font-weight: var(--fw-semibold);
+  line-height: 1.1;
+  letter-spacing: var(--ls-heading);
+  color: var(--text);
+  text-wrap: balance;
+}
+.v3__desc {
+  font-size: var(--fs-small);
+  line-height: var(--lh-body);
+  color: var(--text-muted);
+}
+.v3__rule {
+  /* margin-top: auto pushes it to the card's floor. NOT padding-top —
+     padding on a 1px element paints the background across the padding
+     box and turns the hairline into a gold slab. The flex gap above is
+     the breathing room. */
+  margin-top: auto;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  transform: scaleX(0.25);
+  transform-origin: left center;
+  transition: transform var(--dur-hover) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .v3__card:hover { background: var(--surface); }
+  .v3__card:hover .v3__rule { transform: scaleX(1); }
+}
+
+/* ============================================================
+   PICKER — verbatim from PICKER.md. Not a design decision.
+   ============================================================ */
+.proto-picker {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.82);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  backdrop-filter: blur(12px) saturate(1.4);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 8px 24px rgba(0, 0, 0, 0.24),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.proto-picker-highlight {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  will-change: transform;
+}
+.proto-picker[data-ready] .proto-picker-highlight {
+  transition:
+    transform 250ms cubic-bezier(0.23, 1, 0.32, 1),
+    width 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .proto-picker[data-ready] .proto-picker-highlight { transition: none; }
+}
+.proto-picker-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font: inherit;
+  cursor: pointer;
+  transition: color 150ms ease-out;
+}
+.proto-picker-item:hover { color: rgba(255, 255, 255, 0.85); }
+.proto-picker-item:active { transform: scale(0.97); }
+.proto-picker-item:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+}
+.proto-picker-item[data-active] { color: #fff; }
+.proto-picker-divider {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.proto-picker-replay { padding: 0 10px; font-size: 14px; }
+.proto-picker[data-position="top"] { bottom: auto; top: 24px; }
+</style>
+</head>
+
+<body>
+  <p class="proto-note">Prototype — section Services · 3 directions · 1–3 / ← → pour changer, R pour rejouer</p>
+
+  <!-- Realistic neighbour above -->
+  <section class="proto-before container" aria-hidden="true">
+    <h2>Nous créons<br />des expériences numériques.</h2>
+  </section>
+
+  <div id="stage"></div>
+
+  <!-- Realistic neighbour below -->
+  <section class="proto-after container" aria-hidden="true">
+    <h2>L'atelier<br />technique</h2>
+  </section>
+
+  <nav class="proto-picker" aria-label="Prototype variants">
+    <span class="proto-picker-highlight" aria-hidden="true"></span>
+    <button class="proto-picker-item" data-active aria-current="true">Colonne</button>
+    <button class="proto-picker-item">Accordéon</button>
+    <button class="proto-picker-item">Fiche</button>
+    <span class="proto-picker-divider" aria-hidden="true"></span>
+    <button class="proto-picker-item proto-picker-replay" aria-label="Replay animation (R)">↻</button>
+  </nav>
+
+<script>
+/* Real product content — no lorem, no placeholder names. */
+const SERVICES = [
+  { n: "01", name: "Design Web",
+    desc: "Direction artistique et interfaces sur mesure, pensées pour marquer." },
+  { n: "02", name: "Développement Web",
+    desc: "Sites et applications performants, animés et maintenables." },
+  { n: "03", name: "UI / UX",
+    desc: "Des parcours clairs et des interfaces qui donnent envie d'agir." },
+  { n: "04", name: "Développement Créatif",
+    desc: "Interactions, motion et WebGL au service de l'émotion." },
+  { n: "05", name: "Expériences Numériques",
+    desc: "Des expériences immersives, du concept au moindre détail." },
+];
+
+const head = `
+  <div class="container sv__head">
+    <p class="label sv__eyebrow">Services</p>
+    <h2 class="sv__title"><span>Ce que</span><span>nous concevons</span></h2>
+  </div>`;
+
+/* ---- 1 · COLONNE ---- */
+const colonne = () => `
+  <section class="sv">
+    ${head}
+    <ul class="v1 container" role="list">
+      ${SERVICES.map((s, i) => `
+        <li class="v1__row" data-in style="--i:${i}" tabindex="0">
+          <span class="v1__num">${s.n}</span>
+          <h3 class="v1__name">${s.name}</h3>
+          <p class="v1__desc">${s.desc}</p>
+        </li>`).join("")}
+    </ul>
+  </section>`;
+
+/* ---- 2 · ACCORDÉON ---- */
+const accordeon = () => `
+  <section class="sv">
+    ${head}
+    <ul class="v2 container" role="list">
+      ${SERVICES.map((s, i) => `
+        <li class="v2__item" data-in style="--i:${i}"${i === 0 ? " data-open" : ""}>
+          <button class="v2__btn" type="button"
+                  aria-expanded="${i === 0}" aria-controls="p${i}">
+            <span class="v2__num">${s.n}</span>
+            <span class="v2__name">${s.name}</span>
+            <span class="v2__sign" aria-hidden="true"></span>
+          </button>
+          <div class="v2__panel" id="p${i}" role="region">
+            <div><p class="v2__desc">${s.desc}</p></div>
+          </div>
+        </li>`).join("")}
+    </ul>
+  </section>`;
+
+/* ---- 3 · FICHE ---- */
+const fiche = () => `
+  <section class="sv">
+    ${head}
+    <ul class="v3 container" role="list">
+      ${SERVICES.map((s, i) => `
+        <li class="v3__card" data-in style="--i:${i}">
+          <span class="v3__num">${s.n}</span>
+          <h3 class="v3__name">${s.name}</h3>
+          <p class="v3__desc">${s.desc}</p>
+          <span class="v3__rule" aria-hidden="true"></span>
+        </li>`).join("")}
+    </ul>
+  </section>`;
+
+const variants = [colonne, accordeon, fiche];
+
+/* Accordion behaviour, delegated so it survives every re-mount. */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".v2__btn");
+  if (!btn) return;
+  const item = btn.closest(".v2__item");
+  const list = item.closest(".v2");
+  const open = item.hasAttribute("data-open");
+  list.querySelectorAll(".v2__item[data-open]").forEach((el) => {
+    el.removeAttribute("data-open");
+    el.querySelector(".v2__btn").setAttribute("aria-expanded", "false");
+  });
+  if (!open) {
+    item.setAttribute("data-open", "");
+    btn.setAttribute("aria-expanded", "true");
+  }
+});
+
+/* ---- Picker wiring (verbatim from PICKER.md) ---- */
+const stage = document.getElementById('stage');
+const picker = document.querySelector('.proto-picker');
+const highlight = picker.querySelector('.proto-picker-highlight');
+const items = [...picker.querySelectorAll('.proto-picker-item:not(.proto-picker-replay)')];
+const replay = picker.querySelector('.proto-picker-replay');
+let current = 0;
+
+function moveHighlight() {
+  const el = items[current];
+  highlight.style.width = el.offsetWidth + 'px';
+  highlight.style.transform = `translateX(${el.offsetLeft}px)`;
+}
+
+function mount(i) {
+  stage.innerHTML = '';
+  requestAnimationFrame(() => { stage.innerHTML = variants[i](); });
+}
+
+function setActive(i) {
+  if (i < 0 || i >= variants.length) return;
+  current = i;
+  items.forEach((el, j) => {
+    el.toggleAttribute('data-active', j === i);
+    if (j === i) el.setAttribute('aria-current', 'true');
+    else el.removeAttribute('aria-current');
+  });
+  moveHighlight();
+  const url = new URL(location);
+  url.searchParams.set('v', i + 1);
+  history.replaceState(null, '', url);
+  mount(i);
+}
+
+items.forEach((el, i) => el.addEventListener('click', () => setActive(i)));
+replay?.addEventListener('click', () => mount(current));
+window.addEventListener('resize', moveHighlight);
+
+document.addEventListener('keydown', (e) => {
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const num = parseInt(e.key, 10);
+  if (num >= 1 && num <= variants.length) setActive(num - 1);
+  else if (e.key === 'ArrowRight') setActive((current + 1) % variants.length);
+  else if (e.key === 'ArrowLeft') setActive((current - 1 + variants.length) % variants.length);
+  else if (e.key === 'r' || e.key === 'R') mount(current);
+});
+
+setActive((parseInt(new URLSearchParams(location.search).get('v'), 10) || 1) - 1);
+requestAnimationFrame(() => requestAnimationFrame(() => picker.setAttribute('data-ready', '')));
+</script>
+</body>
+</html>

@@ -23,38 +23,6 @@
   }
 }
 
-/* Line reveal — a mask lifting from bottom */
-@keyframes line-rise {
-  from {
-    transform: translateY(110%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-/* Fade + lift (used only where a rise reads as "emerging") */
-@keyframes emerge {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Hairline drawing in */
-@keyframes rule-draw {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
 /* Slow breathing glow for the signature gold light */
 @keyframes gold-pulse {
   0%,
@@ -63,19 +31,6 @@
   }
   50% {
     opacity: 1;
-  }
-}
-
-/* Subtle ambient drift for background light wash */
-@keyframes ambient-drift {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(2%, 1.5%, 0);
-  }
-  100% {
-    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -92,19 +47,6 @@
   }
 }
 
-/* Scroll hint */
-@keyframes scroll-nudge {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.4;
-  }
-  50% {
-    transform: translateY(6px);
-    opacity: 1;
-  }
-}
-
 /* ---------- REVEAL PRIMITIVES (JS toggles .is-inview) ---------- */
 
 /* Masked line reveal: wrap text line in .reveal-line, inner in span */
@@ -116,7 +58,6 @@
   display: block;
   transform: translateY(110%);
   transition: transform var(--dur-reveal) var(--ease-emphasis);
-  will-change: transform;
 }
 .is-inview .reveal-line > *,
 .reveal-line.is-inview > * {
@@ -130,7 +71,6 @@
   transition:
     opacity var(--dur-slow) var(--ease-out),
     transform var(--dur-slow) var(--ease-out);
-  will-change: transform, opacity;
 }
 .reveal-up.is-inview,
 .is-inview .reveal-up {
@@ -149,36 +89,38 @@
   transform: scaleX(1);
 }
 
-/* Staggering: set --i on children, delay derives from it */
-[data-stagger] > * {
-  transition-delay: calc(var(--i, 0) * 80ms);
-}
-
 /* ---------- UTILITY MOTION ---------- */
 
 .anim-gold-pulse {
   animation: gold-pulse 4s var(--ease-in-out) infinite;
 }
-.anim-ambient {
-  animation: ambient-drift 18s ease-in-out infinite;
-}
-.anim-scroll-nudge {
-  animation: scroll-nudge 1.8s var(--ease-in-out) infinite;
-}
 
 /* ---------- REDUCED MOTION ----------
-   Everything resolves to its final, legible state.
-   No transforms, no infinite loops, instant transitions.       */
+   Reduced motion means FEWER AND GENTLER animations, not zero.
+   What triggers motion sickness is movement: travel, parallax, scale,
+   looping drift. What helps comprehension is a colour or opacity change
+   telling you the interface reacted — so those stay, capped short.
+
+   Hence: kill every looping animation and every transition of a moving
+   property, keep opacity/colour/fill transitions at 120ms.               */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    /* infinite loops (gold pulse, scroll travel, rings) stop dead */
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    animation-delay: 0s !important;
     scroll-behavior: auto !important;
+
+    /* movement stops; the element sits at its resting position */
+    transition-property: opacity, color, background-color, border-color,
+      box-shadow, fill, stroke, -webkit-text-stroke-color, clip-path !important;
+    transition-duration: 120ms !important;
+    transition-delay: 0s !important;
   }
 
+  /* Reveal primitives resolve to their final, legible state */
   .reveal-line > *,
   .reveal-up {
     transform: none !important;

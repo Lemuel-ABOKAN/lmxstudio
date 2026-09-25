@@ -77,11 +77,6 @@
 
 /* ---------- HERO / NAV: tablet ---------- */
 @media (max-width: 1023.98px) {
-  .hero__meta {
-    top: auto;
-    bottom: clamp(var(--space-lg), 4vw, var(--space-2xl));
-    right: var(--gutter-x);
-  }
   .hero__mark {
     width: min(46vw, 360px);
     right: 11%;
@@ -114,61 +109,9 @@
     font-size: var(--fs-body);
     letter-spacing: var(--ls-wide);
   }
-  /* A promoted layer renders text as a bitmap on phones → soft type */
-  .hero__content {
-    will-change: auto;
-  }
-
-  /* Editorial meta is decorative — drop it on phones to protect space */
-  .hero__meta {
-    display: none;
-  }
-
   /* ---- SELECTED WORK: single column ---- */
   .work__grid {
     grid-template-columns: 1fr;
-  }
-  .work__rail {
-    display: none;
-  }
-  .project {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-    min-height: 0;
-    padding-block: var(--space-2xl);
-  }
-  .project--right .project__media,
-  .project--right .project__info {
-    order: 0;
-    grid-row: auto;
-  }
-  .project__frame {
-    aspect-ratio: 4 / 3;
-  }
-  .project__num {
-    font-size: clamp(2.5rem, 12vw, 4rem);
-    top: -0.5em;
-  }
-  .project--left .project__num,
-  .project--right .project__num {
-    left: auto;
-    right: 0.1em;
-  }
-  .project__desc {
-    max-width: none;
-  }
-
-  /* ---- PROJECT VIEW: mobile ---- */
-  .pv__meta {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-lg) var(--grid-gutter);
-  }
-  .pv__close {
-    top: 0.75rem;
-  }
-  .pv__act-text {
-    font-size: var(--fs-body);
   }
 
   .hero__mark {
@@ -180,11 +123,7 @@
   }
 }
 
-/* Project view meta: two columns on tablet */
 @media (min-width: 768px) and (max-width: 1023.98px) {
-  .pv__meta {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .footer__grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -209,12 +148,11 @@
 }
 
 /* ---------- POINTER / TOUCH CAPABILITY ----------
-   Coarse pointer (touch): no custom cursor, larger targets,
-   no hover-dependent reveals as the sole affordance.          */
+   Every :hover rule now lives behind (hover: hover) and (pointer: fine) in
+   style.css, so nothing needs undoing here. What remains is the positive
+   decision: on touch, a hover-only affordance would simply never be seen,
+   so the underline becomes a permanent, quieter hint.            */
 @media (hover: none), (pointer: coarse) {
-  .btn:hover {
-    transform: none;
-  }
   .link::after {
     /* keep a subtle persistent hint instead of hover-only */
     transform: scaleX(1);
@@ -267,11 +205,6 @@
     line-height: 1.5;
   }
 
-  /* ---- DIGITAL LAB: single column ---- */
-  .lab__grid {
-    grid-template-columns: 1fr;
-  }
-
   /* ---- SERVICES: stacked; same outline → fill effect as desktop,
      triggered on scroll (.is-active) instead of hover ---- */
   .service {
@@ -289,22 +222,6 @@
     justify-self: start;
     text-align: left;
     max-width: none;
-  }
-
-  /* ---- TECH STACK: stack list over display ---- */
-  .stack__body {
-    grid-template-columns: 1fr;
-    min-height: 0;
-  }
-  .stack__list {
-    border-right: 0;
-    border-bottom: var(--border-hairline);
-  }
-  .tech {
-    padding: var(--space-sm) var(--space-md);
-  }
-  .stack__display {
-    min-height: 300px;
   }
 
   /* ---- PROCESS: single column, static counter ---- */

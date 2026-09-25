@@ -20,6 +20,9 @@ html {
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
+  /* The header is fixed and up to 7rem tall: without this, every in-page
+     anchor lands with the section title hidden underneath it. */
+  scroll-padding-top: calc(var(--header-h) + var(--space-md));
 }
 
 /* Motion-sensitive users: never auto-scroll animate */
@@ -61,6 +64,32 @@ select {
 
 button {
   cursor: pointer;
+}
+
+/* ---------- TOUCH BASELINE ----------
+   touch-action: manipulation removes the ~300ms double-tap-zoom wait, so a
+   tap commits the instant the finger lifts.
+   user-select/-webkit-touch-callout go on CONTROLS only: a long press on a
+   button must not select its label or raise the iOS callout. Links whose text
+   is content people copy (e-mail, phone) are deliberately excluded — that
+   text must stay selectable. */
+a,
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+button,
+[role="button"],
+.nav-toggle,
+.nav__link,
+.menu__link,
+.pcard,
+.wa-btn,
+.hero__scroll {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* Balanced, non-overflowing text */

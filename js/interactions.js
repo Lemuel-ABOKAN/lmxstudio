@@ -11,6 +11,7 @@
   "use strict";
 
   const { $, $$, prefersReducedMotion, isTouch, gsapReady } = window.LMX.utils;
+  const { EASE, DUR } = window.LMX.motion;
 
   /* ---------- 1 · Scroll progress line ---------- */
   (function scrollProgress() {
@@ -49,10 +50,10 @@
     $$("[data-magnetic]").forEach((el) => {
       const strength = parseFloat(el.dataset.magnetic) || 0.4;
       const inner = el.querySelector("[data-magnetic-inner]");
-      const bx = gsap.quickTo(el, "x", { duration: 0.5, ease: "power3" });
-      const by = gsap.quickTo(el, "y", { duration: 0.5, ease: "power3" });
-      const ix = inner ? gsap.quickTo(inner, "x", { duration: 0.6, ease: "power3" }) : null;
-      const iy = inner ? gsap.quickTo(inner, "y", { duration: 0.6, ease: "power3" }) : null;
+      const bx = gsap.quickTo(el, "x", { duration: 0.5, ease: EASE.follow });
+      const by = gsap.quickTo(el, "y", { duration: 0.5, ease: EASE.follow });
+      const ix = inner ? gsap.quickTo(inner, "x", { duration: 0.6, ease: EASE.follow }) : null;
+      const iy = inner ? gsap.quickTo(inner, "y", { duration: 0.6, ease: EASE.follow }) : null;
 
       let r = null; // cache rect on enter → no layout read per move
       el.addEventListener("pointerenter", () => (r = el.getBoundingClientRect()));
